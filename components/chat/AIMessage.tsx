@@ -41,8 +41,14 @@ export function AIMessage({
   formalAnalysis,
   animate = true,
 }: AIMessageProps) {
+  // Strip out the JSON blocks from displayed content
+  const cleanContent = content
+    .replace(/```equilibrium\n[\s\S]*?\n```/g, "")
+    .replace(/```analysis\n[\s\S]*?\n```/g, "")
+    .trim();
+
   // Split content into paragraphs
-  const paragraphs = content.split("\n\n").filter(Boolean);
+  const paragraphs = cleanContent.split("\n\n").filter(Boolean);
 
   return (
     <div className="rounded-xl bg-white/[0.02] p-6">
