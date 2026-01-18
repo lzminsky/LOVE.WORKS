@@ -24,8 +24,8 @@ function parseThinkingContent(content: string): ParsedSection[] {
       continue;
     }
 
-    // Section headers: === SECTION NAME ===
-    const headerMatch = line.match(/^===\s*(.+?)\s*===$/);
+    // Section headers: === SECTION NAME === (handles multiple = signs)
+    const headerMatch = line.match(/^=+\s*(.+?)\s*=+$/);
     if (headerMatch) {
       sections.push({ type: "header", content: headerMatch[1] });
       i++;
@@ -33,8 +33,9 @@ function parseThinkingContent(content: string): ParsedSection[] {
     }
 
     // Extension lines: EXTENSION IV: Name — STATUS or EXT-IV: Name — STATUS
+    // Also handles formats like "EXTENSION IV: PRINCIPAL-AGENT — ACTIVE"
     const extMatch = line.match(
-      /^(?:EXTENSION\s+)?([IVX]+|EXT-[IVX]+)[\s:]+(.+?)\s*[—-]\s*(ACTIVE|LIKELY|POSSIBLE|PRIMARY|SECONDARY)/i
+      /^(?:EXTENSION\s+)?([IVX]+|EXT-[IVX]+)[\s:]+(.+?)\s*[—-]\s*(ACTIVE|LIKELY|POSSIBLE|PRIMARY|SECONDARY|INACTIVE|MONITORING)/i
     );
     if (extMatch) {
       // Collect following lines as detail until next section/extension
@@ -44,9 +45,12 @@ function parseThinkingContent(content: string): ParsedSection[] {
         const nextLine = lines[i].trim();
         if (
           !nextLine ||
-          nextLine.match(/^===/) ||
+          nextLine.match(/^=+\s*.+\s*=+$/) ||
           nextLine.match(/^(?:EXTENSION\s+)?[IVX]+[\s:]/) ||
-          nextLine.match(/^[A-Z_]+:/)
+          nextLine.match(/^[A-Z][A-Za-z_]*\s*[:=]/) ||
+          nextLine.match(/^Where\s+/i) ||
+          nextLine.match(/^His\s+/i) ||
+          nextLine.match(/^Her\s+/i)
         ) {
           break;
         }
@@ -66,18 +70,62 @@ function parseThinkingContent(content: string): ParsedSection[] {
       continue;
     }
 
+    // Equations: lines with utility function or math notation
+    // Check this BEFORE parameters to catch "U_M = α·A(Q_f) + β·O..." style lines
+    const isEquation =
+      line.includes("=") &&
+      (line.includes("×") ||
+        line.includes("·") ||
+        line.includes("∂") ||
+        line.includes("→") ||
+        line.includes("∈") ||
+        line.includes("≥") ||
+        line.includes("≤") ||
+        line.includes("−") || // minus sign (different from hyphen)
+        line.match(/[α-ωΑ-Ω]/) ||
+        line.match(/\^[{(]/) ||
+        line.match(/[A-Z]_[A-Z]\s*=/) || // U_M = pattern
+        line.match(/\([A-Za-z_,]+\)/)); // function notation like A(Q_f)
+
+    if (isEquation) {
+      sections.push({ type: "equation", content: line });
+      i++;
+      continue;
+    }
+
     // Parameter lines: MP_M: value or MP_M = value
-    const paramMatch = line.match(/^([A-Za-z_][A-Za-z0-9_]*(?:\^[A-Za-z]+)?)\s*[:=]\s*(.+)$/);
+    // Also handles "His current utility: U_M = ..." and similar descriptive lines
+    const paramMatch = line.match(/^([A-Za-z][A-Za-z0-9_\s]*(?:\^[A-Za-z]+)?)\s*[:]\s*(.+)$/);
     if (paramMatch && !line.includes("===")) {
+      // Collect continuation lines (starting with - or indented)
+      let fullValue = paramMatch[2];
+      i++;
+      while (i < lines.length) {
+        const nextLine = lines[i].trim();
+        if (
+          !nextLine ||
+          nextLine.match(/^=+\s*.+\s*=+$/) ||
+          nextLine.match(/^(?:EXTENSION\s+)?[IVX]+[\s:]/) ||
+          (nextLine.match(/^[A-Z][A-Za-z_\s]*:/) && !nextLine.startsWith("-"))
+        ) {
+          break;
+        }
+        // If it's a continuation (starts with - or is indented context)
+        if (nextLine.startsWith("-") || nextLine.startsWith("•")) {
+          fullValue += " " + nextLine;
+          i++;
+        } else {
+          break;
+        }
+      }
       sections.push({
         type: "parameter",
         content: line,
         data: {
-          param: paramMatch[1],
-          value: paramMatch[2],
+          param: paramMatch[1].trim(),
+          value: fullValue,
         },
       });
-      i++;
       continue;
     }
 
@@ -93,18 +141,8 @@ function parseThinkingContent(content: string): ParsedSection[] {
       continue;
     }
 
-    // Equations: lines with math symbols
-    if (
-      line.includes("=") &&
-      (line.includes("×") ||
-        line.includes("∂") ||
-        line.includes("→") ||
-        line.includes("∈") ||
-        line.includes("≥") ||
-        line.includes("≤") ||
-        line.match(/[α-ωΑ-Ω]/) ||
-        line.match(/\^[{(]/))
-    ) {
+    // Lines starting with "Where" are typically equation context
+    if (line.match(/^Where\s+/i)) {
       sections.push({ type: "equation", content: line });
       i++;
       continue;
@@ -161,17 +199,60 @@ function ExtensionLine({
 }
 
 function ParameterLine({ param, value }: { param: string; value: string }) {
+  // Check if value contains bullet points or is very long
+  const hasBullets = value.includes(" - ") || value.includes(" • ");
+
+  if (hasBullets) {
+    // Split into parts and render as a list
+    const parts = value.split(/\s*[-•]\s+/).filter(Boolean);
+    return (
+      <div className="border-b border-white/[0.04] py-3 last:border-0">
+        <div className="mb-2 text-accent">{param}</div>
+        <div className="ml-2 space-y-1">
+          {parts.map((part, i) => (
+            <div key={i} className="flex gap-2 text-neutral-500">
+              <span className="text-neutral-600">→</span>
+              <span>{part}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-[100px_1fr] gap-4 border-b border-white/[0.04] py-2 last:border-0">
-      <span className="text-accent">{param}</span>
+    <div className="grid grid-cols-[auto_1fr] gap-4 border-b border-white/[0.04] py-2 last:border-0">
+      <span className="min-w-[80px] text-accent">{param}</span>
       <span className="text-neutral-500">{value}</span>
     </div>
   );
 }
 
 function EquationLine({ content }: { content: string }) {
+  // Check if it's a "Where" line (contextual explanation)
+  const isWhereClause = content.match(/^Where\s+/i);
+
+  if (isWhereClause) {
+    return (
+      <div className="my-2 text-[12px] text-neutral-500">
+        {content}
+      </div>
+    );
+  }
+
+  // Check if it starts with a label like "His current utility:"
+  const labelMatch = content.match(/^([^:=]+):\s*(.+)$/);
+  if (labelMatch && !content.includes("===")) {
+    return (
+      <div className="my-2">
+        <div className="mb-1 text-[11px] text-neutral-600">{labelMatch[1]}</div>
+        <div className="rounded bg-white/[0.03] px-3 py-2 text-neutral-300">{labelMatch[2]}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="my-1 rounded bg-white/[0.03] px-3 py-1.5 text-neutral-400">{content}</div>
+    <div className="my-2 rounded bg-white/[0.03] px-3 py-2 text-neutral-300">{content}</div>
   );
 }
 
