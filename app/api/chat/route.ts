@@ -1,63 +1,17 @@
 import { NextRequest } from "next/server";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { streamText } from "ai";
 import {
   getSession,
   incrementPromptCount,
   serializeSessionCookie,
 } from "@/lib/session";
 import { CONFIG } from "@/lib/constants";
+import { SYSTEM_PROMPT } from "@/lib/system-prompt";
 
-// Mock streaming response for development (no API key needed)
-// Replace with real Claude integration when ready
-const MOCK_RESPONSE = `This is a classic situationship structure. He's keeping you in the zone between his casual threshold and his commitment threshold—close enough that you stay, far enough that he preserves optionality.
-
-The daily texting is low-cost maintenance. It keeps you engaged without requiring actual investment. The weekend avoidance is the tell: weekends are when real couples do things. He's protecting that time for optionality—either other options, or just the freedom to have them.
-
-The bar stories while claiming "busy with work" is information leakage. He's not even hiding it well, which suggests he's not that worried about losing you. That tells you something about how he's pricing your exit threat.`;
-
-const MOCK_EQUILIBRIUM = {
-  id: "EQ-001",
-  name: "Situationship Steady State",
-  description:
-    "A stable equilibrium where he extracts value while preserving optionality.",
-  confidence: 70,
-  predictions: [
-    { outcome: "Status quo continues", probability: 65, level: "high" },
-    { outcome: "He fades out", probability: 20, level: "medium" },
-    { outcome: "She exits", probability: 12, level: "low" },
-    { outcome: "He commits", probability: 3, level: "minimal" },
-  ],
-};
-
-const MOCK_FORMAL_ANALYSIS = {
-  parameters: [
-    {
-      param: "MP_M",
-      value: "60-75th %ile",
-      basis: "Active social life, multiple options",
-    },
-    {
-      param: "MP_F",
-      value: "55-70th %ile",
-      basis: "Maintained but not prioritized",
-    },
-    { param: "T_commit", value: "> her MP_F", basis: "No commitment signals" },
-    { param: "T_casual", value: "< her MP_F", basis: "Maintained contact" },
-  ],
-  extensions: [
-    {
-      id: "EXT-V",
-      name: "Credit Rationing",
-      status: "ACTIVE",
-      detail: "He's rationing commitment. Q_commit = 0 for her.",
-    },
-    {
-      id: "EXT-IX",
-      name: "Tournament Effects",
-      status: "LIKELY",
-      detail: "Weekend bar activity suggests active market participation.",
-    },
-  ],
-};
+const anthropic = createAnthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -92,43 +46,62 @@ export async function POST(req: NextRequest) {
     // Increment prompt count
     const updatedSession = incrementPromptCount(session);
 
-    // Create streaming response
+    // Create streaming response with Claude
+    const result = streamText({
+      model: anthropic("claude-sonnet-4-20250514"),
+      system: SYSTEM_PROMPT,
+      messages: messages.map((m: { role: string; content: string }) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+    });
+
+    // Create custom stream that parses equilibrium and analysis blocks
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        // Simulate streaming by sending chunks
-        const words = MOCK_RESPONSE.split(" ");
+        let fullText = "";
 
-        for (let i = 0; i < words.length; i++) {
-          const word = words[i] + (i < words.length - 1 ? " " : "");
-          const chunk = JSON.stringify({ type: "text", content: word }) + "\n";
-          controller.enqueue(encoder.encode(chunk));
+        try {
+          for await (const chunk of (await result).textStream) {
+            fullText += chunk;
 
-          // Simulate typing delay
-          await new Promise((resolve) => setTimeout(resolve, 30));
+            // Send text chunk
+            const textChunk = JSON.stringify({ type: "text", content: chunk }) + "\n";
+            controller.enqueue(encoder.encode(textChunk));
+          }
+
+          // After streaming completes, parse for equilibrium and analysis blocks
+          const equilibrium = parseEquilibrium(fullText);
+          const analysis = parseAnalysis(fullText);
+
+          if (equilibrium) {
+            const equilibriumChunk =
+              JSON.stringify({ type: "equilibrium", data: equilibrium }) + "\n";
+            controller.enqueue(encoder.encode(equilibriumChunk));
+          }
+
+          if (analysis) {
+            const analysisChunk =
+              JSON.stringify({ type: "analysis", data: analysis }) + "\n";
+            controller.enqueue(encoder.encode(analysisChunk));
+          }
+
+          // Send done signal with updated session info
+          const doneChunk =
+            JSON.stringify({
+              type: "done",
+              promptCount: updatedSession.promptCount,
+              maxPrompts: CONFIG.maxFreeMessages,
+              isUnlocked: updatedSession.isUnlocked,
+            }) + "\n";
+          controller.enqueue(encoder.encode(doneChunk));
+
+          controller.close();
+        } catch (error) {
+          console.error("Streaming error:", error);
+          controller.error(error);
         }
-
-        // Send equilibrium data
-        const equilibriumChunk =
-          JSON.stringify({ type: "equilibrium", data: MOCK_EQUILIBRIUM }) + "\n";
-        controller.enqueue(encoder.encode(equilibriumChunk));
-
-        // Send formal analysis
-        const analysisChunk =
-          JSON.stringify({ type: "analysis", data: MOCK_FORMAL_ANALYSIS }) + "\n";
-        controller.enqueue(encoder.encode(analysisChunk));
-
-        // Send done signal with updated session info
-        const doneChunk =
-          JSON.stringify({
-            type: "done",
-            promptCount: updatedSession.promptCount,
-            maxPrompts: CONFIG.maxFreeMessages,
-            isUnlocked: updatedSession.isUnlocked,
-          }) + "\n";
-        controller.enqueue(encoder.encode(doneChunk));
-
-        controller.close();
       },
     });
 
@@ -148,35 +121,36 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/*
-================================================================================
-CLAUDE INTEGRATION (swap in when you have API key)
-================================================================================
+// Parse equilibrium block from response
+function parseEquilibrium(text: string) {
+  const match = text.match(/```equilibrium\n([\s\S]*?)\n```/);
+  if (!match) return null;
 
-import { streamText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+  try {
+    const data = JSON.parse(match[1]);
+    // Validate structure
+    if (data.id && data.name && data.description && typeof data.confidence === 'number' && Array.isArray(data.predictions)) {
+      return data;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
-// Add to dependencies:
-// npm install ai @ai-sdk/anthropic
+// Parse formal analysis block from response
+function parseAnalysis(text: string) {
+  const match = text.match(/```analysis\n([\s\S]*?)\n```/);
+  if (!match) return null;
 
-const SYSTEM_PROMPT = `...`; // Your 36k char system prompt here
-
-// Replace the mock streaming section with:
-
-const result = await streamText({
-  model: anthropic("claude-sonnet-4-20250514"),
-  system: SYSTEM_PROMPT,
-  messages: messages.map((m: { role: string; content: string }) => ({
-    role: m.role as "user" | "assistant",
-    content: m.content,
-  })),
-});
-
-return result.toDataStreamResponse({
-  headers: {
-    "Set-Cookie": serializeSessionCookie(updatedSession),
-  },
-});
-
-================================================================================
-*/
+  try {
+    const data = JSON.parse(match[1]);
+    // Validate structure
+    if (Array.isArray(data.parameters) && Array.isArray(data.extensions)) {
+      return data;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
