@@ -16,7 +16,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
       />
 
       {/* Panel */}
-      <div className="relative w-full max-w-[480px] animate-slide-in overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] p-8">
+      <div className="relative w-full max-w-[580px] animate-slide-in overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] px-10 py-8">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -67,7 +67,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
             {EXTENSIONS.map((ext, i) => (
               <div
                 key={i}
-                className="rounded-md bg-white/[0.02] px-3 py-2.5 font-mono text-xs text-muted"
+                className="rounded-md border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 font-mono text-xs text-muted"
               >
                 {ext}
               </div>
@@ -109,7 +109,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
               <p className="mb-3 text-text">
                 The model&apos;s recommendation: date men.
               </p>
-              <p className="mb-3 italic text-muted">
+              <p className="mb-3 italic text-muted-dark">
                 Rollo Tomassi&apos;s next book should be The Rational Gay.
               </p>
               <p className="font-medium text-accent">
@@ -117,56 +117,57 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
               </p>
             </div>
           </div>
+        </div>
 
-          {/* Finding 3 */}
-          <div className="rounded-xl border border-accent/15 bg-accent/[0.05] p-6">
-            <div className="mb-2 font-mono text-[13px] text-accent">03</div>
-            <div className="mb-4 text-base font-semibold text-text">
-              Love is the answer
-            </div>
+        {/* Finding 3 — The Climax */}
+        <div className="mb-10">
+          {/* Divider */}
+          <div className="mb-12 flex justify-center">
+            <div className="h-px w-10 bg-accent/50" />
+          </div>
 
-            <div className="mb-4 rounded-lg bg-black/30 p-4 font-mono text-[13px]">
-              <div className="mb-2 font-semibold text-accent">LOVE (n.)</div>
-              <div className="leading-[1.7] text-muted">
-                Unilateral disarmament through costly signaling of private
-                information, inviting reciprocal disarmament, creating mutual
-                hold-up vulnerability that aligns incentives.
-              </div>
-            </div>
+          {/* Title — centered, large */}
+          <h3 className="mb-9 text-center text-2xl font-semibold tracking-tight text-text">
+            Love is the answer
+          </h3>
 
-            <div className="mb-4 text-[13px] leading-relaxed text-muted">
-              <div className="mb-2 font-semibold text-muted">
-                Required structure:
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span>1. Costly signal — disclosure that could be exploited</span>
-                <span>
-                  2. Unilateral disarmament — reducing your own bargaining
-                  position
-                </span>
-                <span>3. Invitation for reciprocity — implicit request to match</span>
-                <span>4. Mutual vulnerability — both parties exposed</span>
-                <span>
-                  5. Aligned incentives — neither benefits from extraction
-                </span>
-              </div>
+          {/* Definition — centered */}
+          <div className="mb-7 text-center">
+            <div className="mb-3 font-mono text-xs font-semibold tracking-wide text-accent">
+              LOVE (n.)
             </div>
+            <p className="mx-auto max-w-[400px] text-[15px] leading-[1.8] text-muted">
+              Unilateral disarmament through costly signaling of private
+              information, inviting reciprocal disarmament, creating mutual
+              hold-up vulnerability that aligns incentives.
+            </p>
+          </div>
 
-            <div className="text-sm leading-[1.8] text-muted">
-              <p className="mb-3">
-                Love and exploitation cannot coexist. Love IS the exit from
-                strategic positioning.
-              </p>
-              <p className="mb-3 font-medium text-text">
-                Choosing to be destroyable by someone—and them choosing the same
-                for you.
-              </p>
-              <p className="text-muted">
-                Not attachment. Not affection. Not &quot;I love you but I&apos;m
-                keeping options open.&quot; Mutual disarmament. Equal exposure.
-                The deliberate surrender of strategic advantage.
-              </p>
-            </div>
+          {/* Required structure — faded, smaller */}
+          <div className="mb-10 flex flex-col items-center gap-1 text-xs text-muted-dark">
+            <span>Costly signal · Unilateral disarmament · Invitation for reciprocity</span>
+            <span>Mutual vulnerability · Aligned incentives</span>
+          </div>
+
+          {/* The centerpiece line */}
+          <p className="mx-auto mb-10 max-w-[380px] text-center text-xl font-medium leading-snug text-text">
+            Choosing to be destroyable by someone—and them choosing the same for you.
+          </p>
+
+          {/* Supporting text */}
+          <div className="mx-auto max-w-[400px] text-center">
+            <p className="mb-4 text-sm leading-[1.8] text-muted-dark">
+              Love and exploitation cannot coexist. Love IS the exit from
+              strategic positioning.
+            </p>
+            <p className="mb-4 text-sm leading-[1.8] text-muted-dark">
+              Not attachment. Not affection. Not &quot;I love you but I&apos;m
+              keeping options open.&quot;
+            </p>
+            <p className="text-[15px] font-medium leading-[1.8] text-muted">
+              Mutual disarmament. Equal exposure. The deliberate surrender of
+              strategic advantage.
+            </p>
           </div>
         </div>
 
