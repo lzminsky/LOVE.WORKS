@@ -35,20 +35,45 @@ interface AIMessageProps {
   animate?: boolean;
 }
 
+// Parse thinking block from content
+function parseThinkingBlock(content: string): { mainContent: string; thinkingContent: string | null } {
+  // Match <thinking>...</thinking> tags
+  const thinkingMatch = content.match(/<thinking>([\s\S]*?)<\/thinking>/);
+
+  if (!thinkingMatch) {
+    return { mainContent: content, thinkingContent: null };
+  }
+
+  const thinkingContent = thinkingMatch[1].trim();
+  const mainContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/, "").trim();
+
+  return { mainContent, thinkingContent };
+}
+
 export function AIMessage({
   content,
   equilibrium,
   formalAnalysis,
   animate = true,
 }: AIMessageProps) {
+  // First extract thinking blocks
+  const { mainContent, thinkingContent } = parseThinkingBlock(content);
+
   // Strip out the JSON blocks from displayed content
-  const cleanContent = content
+  const cleanContent = mainContent
     .replace(/```equilibrium\n[\s\S]*?\n```/g, "")
     .replace(/```analysis\n[\s\S]*?\n```/g, "")
     .trim();
 
   // Split content into paragraphs
   const paragraphs = cleanContent.split("\n\n").filter(Boolean);
+
+  // Determine if we have any formal analysis to show
+  const hasStructuredAnalysis = formalAnalysis &&
+    ((formalAnalysis.parameters && formalAnalysis.parameters.length > 0) ||
+     (formalAnalysis.extensions && formalAnalysis.extensions.length > 0));
+  const hasThinking = thinkingContent && thinkingContent.length > 0;
+  const showFormalSection = hasStructuredAnalysis || hasThinking;
 
   return (
     <div className="rounded-xl bg-white/[0.02] p-6">
@@ -75,11 +100,12 @@ export function AIMessage({
         </div>
       )}
 
-      {/* Formal Analysis Toggle */}
-      {formalAnalysis && (
+      {/* Formal Analysis Toggle - shows structured data and/or raw thinking */}
+      {showFormalSection && (
         <FormalAnalysis
-          parameters={formalAnalysis.parameters}
-          extensions={formalAnalysis.extensions}
+          parameters={formalAnalysis?.parameters}
+          extensions={formalAnalysis?.extensions}
+          rawThinking={thinkingContent || undefined}
         />
       )}
     </div>
