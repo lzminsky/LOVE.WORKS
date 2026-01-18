@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Header } from "@/components/ui/Header";
 import { Footer } from "@/components/ui/Footer";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
-import { useChat } from "@/hooks/useChat";
+import { useChat, Equilibrium } from "@/hooks/useChat";
 import { COPY, CONFIG } from "@/lib/constants";
 
 interface ChatInterfaceProps {
@@ -13,6 +13,7 @@ interface ChatInterfaceProps {
   onShowAbout: () => void;
   onShowExport: () => void;
   onShowResetConfirm: () => void;
+  onEquilibriumUpdate?: (equilibrium: Equilibrium) => void;
 }
 
 export function ChatInterface({
@@ -20,6 +21,7 @@ export function ChatInterface({
   onShowAbout,
   onShowExport,
   onShowResetConfirm,
+  onEquilibriumUpdate,
 }: ChatInterfaceProps) {
   const {
     messages,
@@ -35,6 +37,17 @@ export function ChatInterface({
       { id: "system-1", role: "system", content: COPY.onboarding },
     ],
   });
+
+  // Track latest equilibrium and notify parent
+  useEffect(() => {
+    const latestWithEquilibrium = [...messages]
+      .reverse()
+      .find((m) => m.equilibrium);
+
+    if (latestWithEquilibrium?.equilibrium && onEquilibriumUpdate) {
+      onEquilibriumUpdate(latestWithEquilibrium.equilibrium);
+    }
+  }, [messages, onEquilibriumUpdate]);
 
   const handleSubmit = useCallback(
     async (content: string) => {

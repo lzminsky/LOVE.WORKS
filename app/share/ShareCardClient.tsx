@@ -1,62 +1,61 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState } from "react";
 import { Footer } from "@/components/ui/Footer";
+import Link from "next/link";
 
-interface Equilibrium {
+interface ShareData {
   id: string;
   name: string;
   description: string;
   confidence: number;
-  predictions: {
+  prediction: {
     outcome: string;
     probability: number;
-    level: "high" | "medium" | "low" | "minimal";
-  }[];
+    level: string;
+  };
 }
 
-interface ExportCardProps {
-  onBack: () => void;
-  equilibrium?: Equilibrium;
-  tagline?: string;
+interface ShareCardClientProps {
+  data: ShareData | null;
 }
 
-// Default data for preview
-const DEFAULT_EQUILIBRIUM: Equilibrium = {
-  id: "EQ-001",
-  name: "Situationship Steady State",
-  description:
-    "He's optimizing correctly. You're the one mispricing the contract.",
-  confidence: 70,
-  predictions: [
-    { outcome: "Status quo continues", probability: 65, level: "high" },
-  ],
-};
-
-export function ExportCard({
-  onBack,
-  equilibrium = DEFAULT_EQUILIBRIUM,
-  tagline,
-}: ExportCardProps) {
+export function ShareCardClient({ data }: ShareCardClientProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [copied, setCopied] = useState(false);
+
+  // Handle missing data
+  if (!data) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
+        <h1 className="mb-4 text-2xl font-semibold">Invalid share link</h1>
+        <p className="mb-8 text-muted">
+          This link doesn&apos;t contain valid data.
+        </p>
+        <Link
+          href="/"
+          className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
+        >
+          Try love.works →
+        </Link>
+        <div className="absolute bottom-0 left-0 right-0">
+          <Footer />
+        </div>
+      </div>
+    );
+  }
 
   // Split name into lines for display
-  const nameLines = equilibrium.name.split(" ");
+  const nameLines = data.name.split(" ");
   const midpoint = Math.ceil(nameLines.length / 2);
   const line1 = nameLines.slice(0, midpoint).join(" ");
   const line2 = nameLines.slice(midpoint).join(" ");
 
-  // Get top prediction
-  const topPrediction = equilibrium.predictions[0];
-
-  const handleDownloadPNG = useCallback(async () => {
+  const handleDownloadPNG = async () => {
     if (!cardRef.current) return;
 
     setIsExporting(true);
     try {
-      // Dynamic import to avoid SSR issues
       const { toPng } = await import("html-to-image");
 
       const dataUrl = await toPng(cardRef.current, {
@@ -66,9 +65,8 @@ export function ExportCard({
         backgroundColor: "#0d0d0d",
       });
 
-      // Download
       const link = document.createElement("a");
-      link.download = `love-works-${equilibrium.id}.png`;
+      link.download = `love-works-${data.id}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -76,48 +74,24 @@ export function ExportCard({
     } finally {
       setIsExporting(false);
     }
-  }, [equilibrium.id]);
+  };
 
-  const handleCopyLink = useCallback(async () => {
-    // Encode equilibrium data in URL
-    const data = {
-      id: equilibrium.id,
-      name: equilibrium.name,
-      description: equilibrium.description,
-      confidence: equilibrium.confidence,
-      prediction: topPrediction,
-    };
-
-    const encoded = btoa(JSON.stringify(data));
-    const url = `${window.location.origin}/share?d=${encoded}`;
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  }, [equilibrium, topPrediction]);
-
-  const handleShareTwitter = useCallback(() => {
-    const text = `${equilibrium.name}\n\n"${equilibrium.description}"\n\n${topPrediction.probability}% ${topPrediction.outcome}\n\nvia love.works`;
-
+  const handleShareTwitter = () => {
+    const text = `${data.name}\n\n"${data.description}"\n\n${data.prediction.probability}% ${data.prediction.outcome}\n\nvia love.works`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank", "width=550,height=420");
-  }, [equilibrium, topPrediction]);
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
       <div className="mb-6 text-[13px] uppercase tracking-[0.1em] text-muted-dark">
-        Export Preview — 1200×628
+        Shared Result
       </div>
 
-      {/* Card Preview (scaled down from 1200x628 to 600x314) */}
+      {/* Card */}
       <div
         ref={cardRef}
         className="relative mb-8 h-[314px] w-[600px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0d0d0d] p-12"
-        style={{ transform: "scale(1)", transformOrigin: "center" }}
       >
         {/* Grid background */}
         <div
@@ -135,10 +109,10 @@ export function ExportCard({
           <div>
             <div className="mb-5 flex items-center gap-2">
               <span className="rounded bg-white/[0.05] px-2 py-1 font-mono text-[11px] text-muted-dark">
-                {equilibrium.id}
+                {data.id}
               </span>
               <span className="text-[11px] font-medium text-accent">
-                {equilibrium.confidence}% confidence
+                {data.confidence}% confidence
               </span>
             </div>
 
@@ -153,22 +127,20 @@ export function ExportCard({
             </h1>
 
             <p className="max-w-[400px] text-base leading-relaxed text-muted">
-              {tagline || equilibrium.description}
+              {data.description}
             </p>
           </div>
 
           <div className="flex items-end justify-between">
-            {topPrediction && (
-              <div className="flex items-center gap-2.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                <span className="font-mono text-sm text-accent">
-                  {topPrediction.probability}%
-                </span>
-                <span className="text-sm text-muted">
-                  {topPrediction.outcome}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-2.5">
+              <div className="h-2.5 w-2.5 rounded-full bg-accent" />
+              <span className="font-mono text-sm text-accent">
+                {data.prediction.probability}%
+              </span>
+              <span className="text-sm text-muted">
+                {data.prediction.outcome}
+              </span>
+            </div>
 
             <div className="text-sm font-semibold text-muted-dark">
               love.works
@@ -180,18 +152,6 @@ export function ExportCard({
       {/* Action buttons */}
       <div className="flex gap-3">
         <button
-          onClick={onBack}
-          className="rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm text-muted transition-colors hover:border-white/20 hover:text-text"
-        >
-          ← Back
-        </button>
-        <button
-          onClick={handleCopyLink}
-          className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
-        >
-          {copied ? "Copied!" : "Copy Link"}
-        </button>
-        <button
           onClick={handleDownloadPNG}
           disabled={isExporting}
           className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text disabled:opacity-50"
@@ -200,10 +160,16 @@ export function ExportCard({
         </button>
         <button
           onClick={handleShareTwitter}
+          className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
+        >
+          Share to Twitter
+        </button>
+        <Link
+          href="/"
           className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
         >
-          Share to Twitter →
-        </button>
+          Try love.works →
+        </Link>
       </div>
 
       {/* Footer */}

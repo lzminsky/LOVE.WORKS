@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { WelcomeModal } from "@/components/modals/WelcomeModal";
 import { AboutPanel } from "@/components/modals/AboutPanel";
@@ -10,12 +10,25 @@ import { ExportCard } from "@/components/export/ExportCard";
 
 type View = "chat" | "gate" | "export";
 
+interface Equilibrium {
+  id: string;
+  name: string;
+  description: string;
+  confidence: number;
+  predictions: {
+    outcome: string;
+    probability: number;
+    level: "high" | "medium" | "low" | "minimal";
+  }[];
+}
+
 export default function Home() {
   const [currentView, setCurrentView] = useState<View>("chat");
   const [showWelcome, setShowWelcome] = useState(true);
   const [showAbout, setShowAbout] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [latestEquilibrium, setLatestEquilibrium] = useState<Equilibrium | undefined>();
 
   // Check if user has seen welcome modal before
   useEffect(() => {
@@ -51,6 +64,10 @@ export default function Home() {
     // In real implementation, would clear messages
   };
 
+  const handleEquilibriumUpdate = useCallback((equilibrium: Equilibrium) => {
+    setLatestEquilibrium(equilibrium);
+  }, []);
+
   // Render gate screen
   if (currentView === "gate") {
     return <GateScreen onUnlock={handleUnlock} />;
@@ -58,7 +75,12 @@ export default function Home() {
 
   // Render export screen
   if (currentView === "export") {
-    return <ExportCard onBack={() => setCurrentView("chat")} />;
+    return (
+      <ExportCard
+        onBack={() => setCurrentView("chat")}
+        equilibrium={latestEquilibrium}
+      />
+    );
   }
 
   // Render main chat interface
@@ -69,6 +91,7 @@ export default function Home() {
         onShowAbout={() => setShowAbout(true)}
         onShowExport={() => setCurrentView("export")}
         onShowResetConfirm={() => setShowResetConfirm(true)}
+        onEquilibriumUpdate={handleEquilibriumUpdate}
       />
 
       {/* Modals */}
