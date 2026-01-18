@@ -5,14 +5,20 @@ import { COPY } from "@/lib/constants";
 type ErrorType = keyof typeof COPY.errors;
 
 interface ErrorToastProps {
-  type: ErrorType;
+  type: ErrorType | string;
   onDismiss: () => void;
   onRetry?: () => void;
 }
 
 export function ErrorToast({ type, onDismiss, onRetry }: ErrorToastProps) {
-  const error = COPY.errors[type];
-  const showRetry = type === "api_error" || type === "twitter_error";
+  // Check if it's a known error type or a custom string
+  const isKnownError = type in COPY.errors;
+  const error = isKnownError
+    ? COPY.errors[type as ErrorType]
+    : { title: "Error", message: type };
+
+  const showRetry =
+    isKnownError && (type === "api_error" || type === "twitter_error");
 
   return (
     <div className="flex items-start gap-3.5 rounded-[10px] border border-error/20 bg-error/10 p-4 px-5">
@@ -23,7 +29,9 @@ export function ErrorToast({ type, onDismiss, onRetry }: ErrorToastProps) {
 
       <div className="flex-1">
         <div className="mb-1 text-sm font-semibold text-error">{error.title}</div>
-        <div className="text-[13px] leading-relaxed text-muted">{error.message}</div>
+        <div className="text-[13px] leading-relaxed text-muted">
+          {error.message}
+        </div>
       </div>
 
       <div className="flex gap-2">

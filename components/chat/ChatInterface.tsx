@@ -1,19 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { Header } from "@/components/ui/Header";
 import { Footer } from "@/components/ui/Footer";
-import { MessageList, Message } from "./MessageList";
+import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
-import {
-  COPY,
-  CONFIG,
-  MOCK_AI_RESPONSE,
-  MOCK_EQUILIBRIUM,
-  MOCK_FORMAL_ANALYSIS,
-} from "@/lib/constants";
-
-type ErrorType = keyof typeof COPY.errors | null;
+import { useChat } from "@/hooks/useChat";
+import { COPY, CONFIG } from "@/lib/constants";
 
 interface ChatInterfaceProps {
   onShowGate: () => void;
@@ -28,69 +21,32 @@ export function ChatInterface({
   onShowExport,
   onShowResetConfirm,
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: "system-1", role: "system", content: COPY.onboarding },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<ErrorType>(null);
-  const [promptCount, setPromptCount] = useState(7); // Mock: 7 of 10 used
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const {
+    messages,
+    isLoading,
+    error,
+    promptCount,
+    isUnlocked,
+    sendMessage,
+    clearError,
+  } = useChat({
+    onGateRequired: onShowGate,
+    initialMessages: [
+      { id: "system-1", role: "system", content: COPY.onboarding },
+    ],
+  });
 
   const handleSubmit = useCallback(
     async (content: string) => {
-      // Check if we've hit the gate
-      if (!isUnlocked && promptCount >= CONFIG.maxFreeMessages) {
-        onShowGate();
-        return;
-      }
-
-      // Add user message
-      const userMessage: Message = {
-        id: `user-${Date.now()}`,
-        role: "user",
-        content,
-      };
-      setMessages((prev) => [...prev, userMessage]);
-      setIsLoading(true);
-      setError(null);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Add AI response with mock data
-      const aiMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        role: "assistant",
-        content: MOCK_AI_RESPONSE,
-        equilibrium: MOCK_EQUILIBRIUM,
-        formalAnalysis: MOCK_FORMAL_ANALYSIS,
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsLoading(false);
-
-      // Increment prompt count
-      if (!isUnlocked) {
-        const newCount = promptCount + 1;
-        setPromptCount(newCount);
-
-        // Check if we've now hit the gate
-        if (newCount >= CONFIG.maxFreeMessages) {
-          setTimeout(() => onShowGate(), 1000);
-        }
-      }
+      await sendMessage(content);
     },
-    [isUnlocked, promptCount, onShowGate]
+    [sendMessage]
   );
 
-  const handleDismissError = useCallback(() => {
-    setError(null);
-  }, []);
-
   const handleRetry = useCallback(() => {
-    setError(null);
-    // In real implementation, would retry the last request
-  }, []);
+    clearError();
+    // Could implement retry logic here
+  }, [clearError]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -107,7 +63,7 @@ export function ChatInterface({
         messages={messages}
         isLoading={isLoading}
         error={error}
-        onDismissError={handleDismissError}
+        onDismissError={clearError}
         onRetry={handleRetry}
       />
 

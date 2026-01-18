@@ -38,7 +38,7 @@ type ErrorType = keyof typeof COPY.errors;
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
-  error: ErrorType | null;
+  error: ErrorType | string | null;
   onDismissError: () => void;
   onRetry: () => void;
 }
