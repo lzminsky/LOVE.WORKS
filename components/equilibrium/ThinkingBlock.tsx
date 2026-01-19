@@ -199,7 +199,7 @@ function ExtensionLine({
 }
 
 function ParameterLine({ param, value }: { param: string; value: string }) {
-  // Check if value contains bullet points or is very long
+  // Check if value contains bullet points
   const hasBullets = value.includes(" - ") || value.includes(" • ");
 
   if (hasBullets) {
@@ -211,7 +211,7 @@ function ParameterLine({ param, value }: { param: string; value: string }) {
         <div className="ml-2 space-y-1">
           {parts.map((part, i) => (
             <div key={i} className="flex gap-2 text-neutral-500">
-              <span className="text-neutral-600">→</span>
+              <span className="flex-shrink-0 text-neutral-600">→</span>
               <span>{part}</span>
             </div>
           ))}
@@ -220,9 +220,25 @@ function ParameterLine({ param, value }: { param: string; value: string }) {
     );
   }
 
+  // Check if value has a separation pattern (value | explanation or value, explanation)
+  // Match patterns like "40-70th %ile | Broad range" or "Declining | Distance indicates"
+  const separatorMatch = value.match(/^([^|,]+?)\s*[|,]\s*(.+)$/);
+
+  if (separatorMatch) {
+    const [, mainValue, explanation] = separatorMatch;
+    return (
+      <div className="grid grid-cols-[140px_140px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5">
+        <span className="flex-shrink-0 text-accent">{param}</span>
+        <span className="text-neutral-400">{mainValue.trim()}</span>
+        <span className="text-neutral-600">{explanation.trim()}</span>
+      </div>
+    );
+  }
+
+  // Simple two-column layout for param: value
   return (
-    <div className="grid grid-cols-[auto_1fr] gap-4 border-b border-white/[0.04] py-2 last:border-0">
-      <span className="min-w-[80px] text-accent">{param}</span>
+    <div className="grid grid-cols-[140px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5">
+      <span className="flex-shrink-0 text-accent">{param}</span>
       <span className="text-neutral-500">{value}</span>
     </div>
   );
@@ -339,7 +355,7 @@ export function ThinkingBlock({ content }: ThinkingBlockProps) {
         // Parameter group
         if (Array.isArray(item)) {
           return (
-            <div key={i} className="mb-4">
+            <div key={i} className="mb-4 flex flex-col gap-2">
               {item.map((param, j) => (
                 <ParameterLine
                   key={j}

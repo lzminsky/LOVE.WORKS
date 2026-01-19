@@ -74,9 +74,9 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
                     {parameters.map((row, i) => (
                       <div
                         key={i}
-                        className="grid grid-cols-[100px_120px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5"
+                        className="grid grid-cols-[160px_140px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5"
                       >
-                        <span className="text-accent">{row.param}</span>
+                        <span className="flex-shrink-0 truncate text-accent">{row.param}</span>
                         <span className="text-muted">{row.value}</span>
                         <span className="text-muted-dark">{row.basis}</span>
                       </div>
