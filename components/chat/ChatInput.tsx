@@ -55,7 +55,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           placeholder="Describe your situation..."
           rows={2}
           disabled={disabled}
-          enterKeyHint="return"
+          enterKeyHint="enter"
           className="flex-1 resize-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-3 text-base leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-white/[0.12] disabled:opacity-50 sm:rounded-[10px] sm:px-[18px] sm:py-3.5 sm:text-[15px]"
         />
         <button
