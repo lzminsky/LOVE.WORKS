@@ -62,24 +62,28 @@ export function ChatInterface({
   }, [clearError]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Header
-        promptCount={promptCount}
-        maxPrompts={CONFIG.maxFreeMessages}
-        isUnlocked={isUnlocked}
-        onAboutClick={onShowAbout}
-        onExportClick={onShowExport}
-        onNewClick={onShowResetConfirm}
-      />
+    <div className="flex h-screen flex-col bg-background">
+      {/* Scrollable area containing Header + Messages */}
+      <div className="flex-1 overflow-y-auto">
+        <Header
+          promptCount={promptCount}
+          maxPrompts={CONFIG.maxFreeMessages}
+          isUnlocked={isUnlocked}
+          onAboutClick={onShowAbout}
+          onExportClick={onShowExport}
+          onNewClick={onShowResetConfirm}
+        />
 
-      <MessageList
-        messages={messages}
-        isLoading={isLoading}
-        error={error}
-        onDismissError={clearError}
-        onRetry={handleRetry}
-      />
+        <MessageList
+          messages={messages}
+          isLoading={isLoading}
+          error={error}
+          onDismissError={clearError}
+          onRetry={handleRetry}
+        />
+      </div>
 
+      {/* Fixed input at bottom */}
       <ChatInput
         onSubmit={handleSubmit}
         isLoading={isLoading}

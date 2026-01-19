@@ -20,7 +20,7 @@ export function Header({
   onNewClick,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-white/[0.06] bg-background/95 px-8 py-4 backdrop-blur-xl">
+    <header className="flex items-center justify-between border-b border-white/[0.06] bg-background px-8 py-4">
       <div className="text-[15px] font-semibold tracking-tight text-text">
         {CONFIG.appName}
       </div>

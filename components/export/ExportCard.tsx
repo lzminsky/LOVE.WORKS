@@ -19,6 +19,7 @@ interface ExportCardProps {
   onBack: () => void;
   equilibrium?: Equilibrium;
   tagline?: string;
+  conversationMarkdown?: string;
 }
 
 // Default data for preview
@@ -37,10 +38,10 @@ export function ExportCard({
   onBack,
   equilibrium = DEFAULT_EQUILIBRIUM,
   tagline,
+  conversationMarkdown,
 }: ExportCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   // Split name into lines for display
   const nameLines = equilibrium.name.split(" ");
@@ -78,34 +79,39 @@ export function ExportCard({
     }
   }, [equilibrium.id]);
 
-  const handleCopyLink = useCallback(async () => {
-    // Encode equilibrium data in URL
-    const data = {
-      id: equilibrium.id,
-      name: equilibrium.name,
-      description: equilibrium.description,
-      confidence: equilibrium.confidence,
-      prediction: topPrediction,
-    };
+  const handleDownloadMarkdown = useCallback(() => {
+    // Generate markdown content
+    const markdown = `# ${equilibrium.name}
 
-    const encoded = btoa(JSON.stringify(data));
-    const url = `${window.location.origin}/share?d=${encoded}`;
+**ID:** ${equilibrium.id}
+**Confidence:** ${equilibrium.confidence}%
 
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  }, [equilibrium, topPrediction]);
+## Summary
 
-  const handleShareTwitter = useCallback(() => {
-    const text = `${equilibrium.name}\n\n"${equilibrium.description}"\n\n${topPrediction.probability}% ${topPrediction.outcome}\n\nvia love.works`;
+${equilibrium.description}
 
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank", "width=550,height=420");
-  }, [equilibrium, topPrediction]);
+## Predictions
+
+${equilibrium.predictions.map((p) => `- **${p.probability}%** — ${p.outcome}`).join("\n")}
+
+---
+
+${conversationMarkdown || ""}
+
+---
+
+*Exported from love.works*
+`;
+
+    // Create and download file
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `love-works-${equilibrium.id}.md`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [equilibrium, conversationMarkdown]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
@@ -186,23 +192,17 @@ export function ExportCard({
           ← Back
         </button>
         <button
-          onClick={handleCopyLink}
+          onClick={handleDownloadMarkdown}
           className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
         >
-          {copied ? "Copied!" : "Copy Link"}
+          Download Markdown
         </button>
         <button
           onClick={handleDownloadPNG}
           disabled={isExporting}
-          className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text disabled:opacity-50"
+          className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50"
         >
           {isExporting ? "Exporting..." : "Download PNG"}
-        </button>
-        <button
-          onClick={handleShareTwitter}
-          className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
-        >
-          Share to Twitter →
         </button>
       </div>
 
