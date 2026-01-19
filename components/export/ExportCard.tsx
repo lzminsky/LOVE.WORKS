@@ -227,14 +227,53 @@ export function ExportCard({
     }
   }, [shareUrl]);
 
-  const handleShareTwitter = useCallback(() => {
-    const text = `${equilibrium.name}\n\n"${tagline || equilibrium.description}"\n\n${topPrediction?.probability || 0}% ${topPrediction?.outcome || "Unknown"}\n\nvia`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
-    window.open(url, "_blank", "width=550,height=420");
+  const [twitterImageCopied, setTwitterImageCopied] = useState(false);
 
-    Analytics.exportGenerated("twitter");
-    Analytics.shareCompleted("twitter");
-  }, [equilibrium, tagline, topPrediction, shareUrl]);
+  const handleShareTwitter = useCallback(async () => {
+    if (!cardRef.current) return;
+
+    try {
+      // Generate the PNG
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(cardRef.current, {
+        width: 1200,
+        height: 628,
+        pixelRatio: 2,
+        backgroundColor: "#0d0d0d",
+      });
+
+      // Convert to blob and copy to clipboard
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        setTwitterImageCopied(true);
+        setTimeout(() => setTwitterImageCopied(false), 5000);
+      } catch {
+        // Clipboard API for images not supported, fall back to just opening X
+        console.log("Image clipboard not supported");
+      }
+
+      // Compose tweet text - short, punchy, no URL
+      const text = `my relationship equilibrium:\n\n${equilibrium.name}\n${topPrediction?.probability || 0}% ${topPrediction?.outcome || "Unknown"}\n\nlovebomb.works`;
+
+      // Open X compose (user will paste the image)
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank", "width=550,height=520");
+
+      Analytics.exportGenerated("twitter");
+      Analytics.shareCompleted("twitter");
+    } catch (err) {
+      console.error("Failed to prepare Twitter share:", err);
+      // Fallback: just open with text
+      const text = `my relationship equilibrium:\n\n${equilibrium.name}\n${topPrediction?.probability || 0}% ${topPrediction?.outcome || "Unknown"}\n\nlovebomb.works`;
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank", "width=550,height=520");
+    }
+  }, [equilibrium, topPrediction]);
 
   const handleDownloadMarkdown = useCallback(() => {
     // Generate full conversation markdown
@@ -420,7 +459,7 @@ ${conversationContent}
             onClick={handleShareTwitter}
             className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
-            Share to 𝕏
+            {twitterImageCopied ? "Image copied — paste in 𝕏" : "Share to 𝕏"}
           </button>
           <button
             onClick={canShare ? handleNativeShare : handleDownloadPNG}
