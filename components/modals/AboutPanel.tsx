@@ -31,7 +31,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
         </div>
 
         <h2 className="mb-6 text-[28px] font-semibold tracking-tight text-text">
-          love.works
+          lovebomb.works
         </h2>
 
         <div className="text-[15px] leading-[1.8] text-muted">

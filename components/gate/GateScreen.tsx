@@ -1,19 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Footer } from "@/components/ui/Footer";
 import { TweetPreview } from "./TweetPreview";
 import { VerificationStates, VerificationState } from "./VerificationStates";
-import { COPY, CONFIG } from "@/lib/constants";
+import { COPY } from "@/lib/constants";
+import { Analytics } from "@/lib/analytics";
 
 interface GateScreenProps {
   onUnlock: () => void;
+  promptCount?: number;
+  maxPrompts?: number;
 }
 
-export function GateScreen({ onUnlock }: GateScreenProps) {
+export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: GateScreenProps) {
   const [verifyState, setVerifyState] = useState<VerificationState>("initial");
+  const gateViewTimeRef = useRef<number>(Date.now());
+
+  // Track gate view on mount
+  useEffect(() => {
+    gateViewTimeRef.current = Date.now();
+  }, []);
 
   const handleConnect = () => {
+    Analytics.twitterAuthStarted();
     setVerifyState("connecting");
     // Simulate OAuth redirect
     setTimeout(() => setVerifyState("needs_engagement"), 1500);
@@ -22,10 +32,15 @@ export function GateScreen({ onUnlock }: GateScreenProps) {
   const handleVerify = () => {
     setVerifyState("checking");
     // Simulate verification
-    setTimeout(() => setVerifyState("success"), 1500);
+    setTimeout(() => {
+      Analytics.engagementVerified(true, true);
+      setVerifyState("success");
+    }, 1500);
   };
 
   const handleContinue = () => {
+    const timeToUnlock = Date.now() - gateViewTimeRef.current;
+    Analytics.unlocked(timeToUnlock);
     onUnlock();
   };
 
@@ -36,7 +51,7 @@ export function GateScreen({ onUnlock }: GateScreenProps) {
         <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-2">
           <div className="h-2 w-2 rounded-full bg-accent" />
           <span className="text-sm font-medium text-accent">
-            0 of {CONFIG.maxFreeMessages} messages
+            {promptCount} of {maxPrompts} messages used
           </span>
         </div>
 

@@ -26,12 +26,16 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-5">
-        {/* Prompt counter */}
+        {/* Prompt counter - shows remaining messages */}
         {!isUnlocked && (
           <div className="flex items-center gap-2 rounded-md bg-white/[0.03] px-3 py-1.5">
-            <div className="h-1.5 w-1.5 rounded-full bg-success" />
+            <div
+              className={`h-1.5 w-1.5 rounded-full ${
+                maxPrompts - promptCount <= 3 ? "bg-warning" : "bg-success"
+              }`}
+            />
             <span className="text-[13px] tabular-nums text-muted">
-              {promptCount} of {maxPrompts}
+              {maxPrompts - promptCount} {maxPrompts - promptCount === 1 ? "message" : "messages"} left
             </span>
           </div>
         )}

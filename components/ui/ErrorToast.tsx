@@ -1,24 +1,30 @@
 "use client";
 
 import { COPY } from "@/lib/constants";
+import type { ChatError } from "@/hooks/useChat";
 
 type ErrorType = keyof typeof COPY.errors;
 
 interface ErrorToastProps {
-  type: ErrorType | string;
+  error: ChatError | string;
   onDismiss: () => void;
   onRetry?: () => void;
 }
 
-export function ErrorToast({ type, onDismiss, onRetry }: ErrorToastProps) {
-  // Check if it's a known error type or a custom string
-  const isKnownError = type in COPY.errors;
-  const error = isKnownError
-    ? COPY.errors[type as ErrorType]
-    : { title: "Error", message: type };
+export function ErrorToast({ error, onDismiss, onRetry }: ErrorToastProps) {
+  // Handle ChatError object or string
+  const isChatError = typeof error === "object" && error !== null;
+  const errorType = isChatError ? error.type : error;
+  const errorMessage = isChatError ? error.message : error;
 
-  const showRetry =
-    isKnownError && (type === "api_error" || type === "twitter_error");
+  // Check if it's a known error type in COPY
+  const isKnownError = errorType in COPY.errors;
+  const displayError = isKnownError
+    ? COPY.errors[errorType as ErrorType]
+    : { title: "Error", message: errorMessage };
+
+  // Show retry for most error types except rate limiting
+  const showRetry = errorType !== "rate_limited";
 
   return (
     <div className="flex items-start gap-3.5 rounded-[10px] border border-error/20 bg-error/10 p-4 px-5">
@@ -28,9 +34,9 @@ export function ErrorToast({ type, onDismiss, onRetry }: ErrorToastProps) {
       </div>
 
       <div className="flex-1">
-        <div className="mb-1 text-sm font-semibold text-error">{error.title}</div>
+        <div className="mb-1 text-sm font-semibold text-error">{displayError.title}</div>
         <div className="text-[13px] leading-relaxed text-muted">
-          {error.message}
+          {displayError.message}
         </div>
       </div>
 

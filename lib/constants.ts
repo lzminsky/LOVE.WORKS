@@ -2,7 +2,7 @@
 export const COPY = {
   welcomeModal: {
     tagline: "bounded.works presents",
-    title: "love.works",
+    title: "lovebomb.works",
     description: "The same models used for pricing options and predicting markets.",
     cta: "Now pointed at your love life.",
   },
@@ -68,7 +68,7 @@ export const LINKS = {
 // App config
 export const CONFIG = {
   maxFreeMessages: 10,
-  appName: "love.works",
+  appName: "lovebomb.works",
   parentOrg: "bounded.works",
 } as const;
 

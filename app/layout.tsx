@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Suspense } from "react";
+import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,18 +15,18 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://love.works"),
-  title: "love.works",
+  metadataBase: new URL("https://lovebomb.works"),
+  title: "lovebomb.works",
   description: "Get your relationship dynamics diagnosed by a formal economic model",
   openGraph: {
-    title: "love.works",
+    title: "lovebomb.works",
     description: "The same models used for pricing options and predicting markets. Now pointed at your love life.",
-    siteName: "love.works",
+    siteName: "lovebomb.works",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "love.works",
+    title: "lovebomb.works",
     description: "The same models used for pricing options and predicting markets. Now pointed at your love life.",
   },
 };
@@ -36,7 +38,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <Suspense fallback={null}>
+          <AnalyticsProvider>{children}</AnalyticsProvider>
+        </Suspense>
+      </body>
     </html>
   );
 }

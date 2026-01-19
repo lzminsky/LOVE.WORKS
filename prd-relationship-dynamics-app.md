@@ -1,4 +1,4 @@
-# Product Requirements Document: love.works
+# Product Requirements Document: lovebomb.works
 
 **A bounded.works product**
 
@@ -8,7 +8,7 @@ A web application that provides formal economic analysis of relationship dynamic
 
 **Core Value Proposition:** "Get your relationship dynamics diagnosed by a formal economic model—the same framework that predicted my own situation correctly."
 
-**Domain:** love.works
+**Domain:** lovebomb.works
 **Parent org:** bounded.works
 
 ---
@@ -525,7 +525,7 @@ Returning visit:
 | Dependency | Lead Time | Status | Notes |
 |------------|-----------|--------|-------|
 | Twitter API elevated access | 24-48 hours | **APPLY IMMEDIATELY** | Required for `like.read` scope |
-| Domain (love.works) | Minutes | Check availability | Purchase and configure DNS |
+| Domain (lovebomb.works) | Minutes | Check availability | Purchase and configure DNS |
 | Target tweet | — | Create before launch | Need `TWITTER_TARGET_TWEET_ID` |
 
 ---
@@ -569,7 +569,7 @@ Returning visit:
 
 | Question | Decision |
 |----------|----------|
-| App name/domain | love.works (by bounded.works) |
+| App name/domain | lovebomb.works (by bounded.works) |
 | Onboarding copy | "Describe a past relationship. Present tense. I'll tell you how it ended—and it'll help me learn more about you. Or, we can talk about anything you want." |
 | Gate tone | Direct, fair trade framing |
 | Twitter API fallback | Block + retry button |

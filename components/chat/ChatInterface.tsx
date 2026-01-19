@@ -1,19 +1,21 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Header } from "@/components/ui/Header";
 import { Footer } from "@/components/ui/Footer";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
-import { useChat, Equilibrium } from "@/hooks/useChat";
-import { COPY, CONFIG } from "@/lib/constants";
+import { useChat, Equilibrium, Message } from "@/hooks/useChat";
+import { COPY } from "@/lib/constants";
+import { Analytics } from "@/lib/analytics";
 
 interface ChatInterfaceProps {
-  onShowGate: () => void;
+  onShowGate: (promptCount: number) => void;
   onShowAbout: () => void;
-  onShowExport: () => void;
+  onShowExport: (messages: Message[]) => void;
   onShowResetConfirm: () => void;
   onEquilibriumUpdate?: (equilibrium: Equilibrium) => void;
+  onMessagesUpdate?: (messages: Message[]) => void;
 }
 
 export function ChatInterface({
@@ -22,21 +24,29 @@ export function ChatInterface({
   onShowExport,
   onShowResetConfirm,
   onEquilibriumUpdate,
+  onMessagesUpdate,
 }: ChatInterfaceProps) {
   const {
     messages,
     isLoading,
     error,
     promptCount,
+    maxPrompts,
     isUnlocked,
     sendMessage,
     clearError,
   } = useChat({
-    onGateRequired: onShowGate,
+    onGateRequired: (count) => {
+      Analytics.gateReached(count);
+      onShowGate(count);
+    },
     initialMessages: [
       { id: "system-1", role: "system", content: COPY.onboarding },
     ],
   });
+
+  // Track conversation start (first user message)
+  const conversationStartedRef = useRef(false);
 
   // Track latest equilibrium and notify parent
   useEffect(() => {
@@ -49,11 +59,26 @@ export function ChatInterface({
     }
   }, [messages, onEquilibriumUpdate]);
 
+  // Keep parent in sync with messages for export
+  useEffect(() => {
+    onMessagesUpdate?.(messages);
+  }, [messages, onMessagesUpdate]);
+
   const handleSubmit = useCallback(
     async (content: string) => {
+      // Track conversation start on first message
+      if (!conversationStartedRef.current) {
+        conversationStartedRef.current = true;
+        Analytics.conversationStarted("chat");
+      }
+
+      // Track message sent
+      const currentPromptCount = promptCount + 1;
+      Analytics.messageSent(currentPromptCount, currentPromptCount >= maxPrompts);
+
       await sendMessage(content);
     },
-    [sendMessage]
+    [sendMessage, promptCount, maxPrompts]
   );
 
   const handleRetry = useCallback(() => {
@@ -67,10 +92,10 @@ export function ChatInterface({
       <div className="flex-1 overflow-y-auto">
         <Header
           promptCount={promptCount}
-          maxPrompts={CONFIG.maxFreeMessages}
+          maxPrompts={maxPrompts}
           isUnlocked={isUnlocked}
           onAboutClick={onShowAbout}
-          onExportClick={onShowExport}
+          onExportClick={() => onShowExport(messages)}
           onNewClick={onShowResetConfirm}
         />
 
@@ -87,7 +112,7 @@ export function ChatInterface({
       <ChatInput
         onSubmit={handleSubmit}
         isLoading={isLoading}
-        disabled={!isUnlocked && promptCount >= CONFIG.maxFreeMessages}
+        disabled={!isUnlocked && promptCount >= maxPrompts}
       />
 
       <Footer />

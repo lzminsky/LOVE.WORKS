@@ -36,7 +36,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
           href="/"
           className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
         >
-          Try love.works →
+          Try lovebomb.works →
         </Link>
         <div className="absolute bottom-0 left-0 right-0">
           <Footer />
@@ -66,7 +66,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
       });
 
       const link = document.createElement("a");
-      link.download = `love-works-${data.id}.png`;
+      link.download = `lovebomb-works-${data.id}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -77,7 +77,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
   };
 
   const handleShareTwitter = () => {
-    const text = `${data.name}\n\n"${data.description}"\n\n${data.prediction.probability}% ${data.prediction.outcome}\n\nvia love.works`;
+    const text = `${data.name}\n\n"${data.description}"\n\n${data.prediction.probability}% ${data.prediction.outcome}\n\nvia lovebomb.works`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank", "width=550,height=420");
   };
@@ -143,7 +143,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
             </div>
 
             <div className="text-sm font-semibold text-muted-dark">
-              love.works
+              lovebomb.works
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
           href="/"
           className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
         >
-          Try love.works →
+          Try lovebomb.works →
         </Link>
       </div>
 

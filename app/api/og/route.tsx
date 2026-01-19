@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
             fontFamily: "system-ui",
           }}
         >
-          <div style={{ fontSize: 64, fontWeight: 600 }}>love.works</div>
+          <div style={{ fontSize: 64, fontWeight: 600 }}>lovebomb.works</div>
           <div style={{ fontSize: 24, color: "#888", marginTop: 16 }}>
             Formal economics for your love life.
           </div>
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest) {
 
           {/* Branding */}
           <div style={{ fontSize: 18, fontWeight: 600, color: "#444" }}>
-            love.works
+            lovebomb.works
           </div>
         </div>
       </div>

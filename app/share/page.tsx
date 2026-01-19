@@ -35,7 +35,7 @@ export async function generateMetadata({
 
   if (!data) {
     return {
-      title: "love.works",
+      title: "lovebomb.works",
       description: "Formal economics for your love life.",
     };
   }
@@ -44,12 +44,12 @@ export async function generateMetadata({
   const description = `${data.description} — ${data.prediction.probability}% ${data.prediction.outcome}`;
 
   return {
-    title: `${title} | love.works`,
+    title: `${title} | lovebomb.works`,
     description,
     openGraph: {
       title,
       description,
-      siteName: "love.works",
+      siteName: "lovebomb.works",
       type: "website",
       images: [
         {

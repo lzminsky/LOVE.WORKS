@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import { Footer } from "@/components/ui/Footer";
+import { Analytics } from "@/lib/analytics";
 
 interface Equilibrium {
   id: string;
@@ -15,11 +16,23 @@ interface Equilibrium {
   }[];
 }
 
+interface Message {
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+  phase?: string;
+  equilibrium?: Equilibrium;
+  formalAnalysis?: {
+    parameters: { param: string; value: string; basis: string }[];
+    extensions: { id: string; name: string; status: string; detail: string }[];
+  };
+}
+
 interface ExportCardProps {
   onBack: () => void;
   equilibrium?: Equilibrium;
   tagline?: string;
-  conversationMarkdown?: string;
+  messages?: Message[];
 }
 
 // Default data for preview
@@ -34,14 +47,111 @@ const DEFAULT_EQUILIBRIUM: Equilibrium = {
   ],
 };
 
+// Helper to extract clean content from message (strip thinking blocks, phase tags, JSON blocks)
+function cleanMessageContent(content: string): string {
+  return content
+    .replace(/<phase>(INTAKE|BUILDING|DIAGNOSIS)<\/phase>\s*/g, "")
+    .replace(/<thinking>[\s\S]*?<\/thinking>/g, "")
+    .replace(/```equilibrium\n[\s\S]*?\n```/g, "")
+    .replace(/```analysis\n[\s\S]*?\n```/g, "")
+    .trim();
+}
+
+// Helper to extract thinking content from message
+function extractThinking(content: string): string | null {
+  const match = content.match(/<thinking>([\s\S]*?)<\/thinking>/);
+  return match ? match[1].trim() : null;
+}
+
+// Generate full conversation markdown
+function generateConversationMarkdown(messages: Message[]): string {
+  const lines: string[] = [];
+
+  for (const msg of messages) {
+    if (msg.role === "system") {
+      lines.push(`> *${msg.content}*`);
+      lines.push("");
+    } else if (msg.role === "user") {
+      lines.push(`**You:** ${msg.content}`);
+      lines.push("");
+    } else if (msg.role === "assistant") {
+      const cleanContent = cleanMessageContent(msg.content);
+      lines.push(`**Analysis:** ${cleanContent}`);
+      lines.push("");
+
+      // Add thinking/formal analysis if present
+      const thinking = extractThinking(msg.content);
+      if (thinking) {
+        lines.push("<details>");
+        lines.push("<summary>Formal Analysis</summary>");
+        lines.push("");
+        lines.push("```");
+        lines.push(thinking);
+        lines.push("```");
+        lines.push("</details>");
+        lines.push("");
+      }
+
+      // Add structured formal analysis if present
+      if (msg.formalAnalysis) {
+        if (!thinking) {
+          lines.push("<details>");
+          lines.push("<summary>Formal Analysis</summary>");
+          lines.push("");
+        }
+
+        if (msg.formalAnalysis.parameters?.length > 0) {
+          lines.push("**Parameters:**");
+          for (const p of msg.formalAnalysis.parameters) {
+            lines.push(`- ${p.param}: ${p.value} (${p.basis})`);
+          }
+          lines.push("");
+        }
+
+        if (msg.formalAnalysis.extensions?.length > 0) {
+          lines.push("**Extensions:**");
+          for (const e of msg.formalAnalysis.extensions) {
+            lines.push(`- ${e.id} ${e.name} [${e.status}]: ${e.detail}`);
+          }
+          lines.push("");
+        }
+
+        if (!thinking) {
+          lines.push("</details>");
+          lines.push("");
+        }
+      }
+
+      // Add equilibrium if present
+      if (msg.equilibrium) {
+        lines.push("---");
+        lines.push("");
+        lines.push(`### ${msg.equilibrium.name}`);
+        lines.push(`*${msg.equilibrium.description}*`);
+        lines.push("");
+        lines.push(`**Confidence:** ${msg.equilibrium.confidence}%`);
+        lines.push("");
+        lines.push("**Predictions:**");
+        for (const pred of msg.equilibrium.predictions) {
+          lines.push(`- ${pred.probability}% — ${pred.outcome}`);
+        }
+        lines.push("");
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
+
 export function ExportCard({
   onBack,
   equilibrium = DEFAULT_EQUILIBRIUM,
   tagline,
-  conversationMarkdown,
+  messages = [],
 }: ExportCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Split name into lines for display
   const nameLines = equilibrium.name.split(" ");
@@ -51,6 +161,21 @@ export function ExportCard({
 
   // Get top prediction
   const topPrediction = equilibrium.predictions[0];
+
+  // Generate shareable URL with encoded data
+  const shareUrl = useMemo(() => {
+    const shareData = {
+      id: equilibrium.id,
+      name: equilibrium.name,
+      description: tagline || equilibrium.description,
+      confidence: equilibrium.confidence,
+      prediction: topPrediction || { outcome: "Unknown", probability: 0, level: "low" },
+    };
+    const encoded = btoa(JSON.stringify(shareData));
+    // Use window.location.origin for full URL, fallback for SSR
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://lovebomb.works";
+    return `${origin}/share?d=${encoded}`;
+  }, [equilibrium, tagline, topPrediction]);
 
   const handleDownloadPNG = useCallback(async () => {
     if (!cardRef.current) return;
@@ -69,9 +194,12 @@ export function ExportCard({
 
       // Download
       const link = document.createElement("a");
-      link.download = `love-works-${equilibrium.id}.png`;
+      link.download = `lovebomb-works-${equilibrium.id}.png`;
       link.href = dataUrl;
       link.click();
+
+      Analytics.exportGenerated("png");
+      Analytics.shareCompleted("download");
     } catch (err) {
       console.error("Failed to export:", err);
     } finally {
@@ -79,39 +207,60 @@ export function ExportCard({
     }
   }, [equilibrium.id]);
 
+  const handleCopyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+
+      Analytics.exportGenerated("link");
+      Analytics.shareCompleted("copy_link");
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, [shareUrl]);
+
+  const handleShareTwitter = useCallback(() => {
+    const text = `${equilibrium.name}\n\n"${tagline || equilibrium.description}"\n\n${topPrediction?.probability || 0}% ${topPrediction?.outcome || "Unknown"}\n\nvia`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+    window.open(url, "_blank", "width=550,height=420");
+
+    Analytics.exportGenerated("twitter");
+    Analytics.shareCompleted("twitter");
+  }, [equilibrium, tagline, topPrediction, shareUrl]);
+
   const handleDownloadMarkdown = useCallback(() => {
-    // Generate markdown content
-    const markdown = `# ${equilibrium.name}
+    // Generate full conversation markdown
+    const conversationContent = generateConversationMarkdown(messages);
+    const timestamp = new Date().toISOString().split("T")[0];
 
-**ID:** ${equilibrium.id}
-**Confidence:** ${equilibrium.confidence}%
+    const markdown = `# Conversation Export — lovebomb.works
 
-## Summary
-
-${equilibrium.description}
-
-## Predictions
-
-${equilibrium.predictions.map((p) => `- **${p.probability}%** — ${p.outcome}`).join("\n")}
+**Date:** ${timestamp}
 
 ---
 
-${conversationMarkdown || ""}
+## Conversation
+
+${conversationContent}
 
 ---
 
-*Exported from love.works*
+*Exported from lovebomb.works*
 `;
 
     // Create and download file
     const blob = new Blob([markdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.download = `love-works-${equilibrium.id}.md`;
+    link.download = `lovebomb-works-conversation-${timestamp}.md`;
     link.href = url;
     link.click();
     URL.revokeObjectURL(url);
-  }, [equilibrium, conversationMarkdown]);
+
+    Analytics.exportGenerated("markdown");
+    Analytics.shareCompleted("download");
+  }, [messages]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
@@ -177,33 +326,52 @@ ${conversationMarkdown || ""}
             )}
 
             <div className="text-sm font-semibold text-muted-dark">
-              love.works
+              lovebomb.works
             </div>
           </div>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-3">
-        <button
-          onClick={onBack}
-          className="rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm text-muted transition-colors hover:border-white/20 hover:text-text"
-        >
-          ← Back
-        </button>
-        <button
-          onClick={handleDownloadMarkdown}
-          className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
-        >
-          Download Markdown
-        </button>
-        <button
-          onClick={handleDownloadPNG}
-          disabled={isExporting}
-          className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50"
-        >
-          {isExporting ? "Exporting..." : "Download PNG"}
-        </button>
+      {/* Action buttons - two rows */}
+      <div className="flex flex-col items-center gap-3">
+        {/* Primary actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleCopyLink}
+            className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
+          >
+            {linkCopied ? "✓ Copied!" : "Copy Link"}
+          </button>
+          <button
+            onClick={handleShareTwitter}
+            className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
+          >
+            Share to 𝕏
+          </button>
+          <button
+            onClick={handleDownloadPNG}
+            disabled={isExporting}
+            className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50"
+          >
+            {isExporting ? "Exporting..." : "Download PNG"}
+          </button>
+        </div>
+
+        {/* Secondary actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={onBack}
+            className="rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm text-muted transition-colors hover:border-white/20 hover:text-text"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={handleDownloadMarkdown}
+            className="rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm text-muted-dark transition-colors hover:border-white/20 hover:text-muted"
+          >
+            Download Markdown
+          </button>
+        </div>
       </div>
 
       {/* Footer */}

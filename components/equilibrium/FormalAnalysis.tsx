@@ -38,12 +38,12 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
       {/* Toggle button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 text-[13px] text-muted-dark transition-colors hover:text-muted"
+        className="group flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] text-muted transition-all hover:border-accent/30 hover:bg-accent/5 hover:text-text"
       >
-        <span className="font-mono text-sm text-accent">ƒ</span>
-        <span>Reasoned formally</span>
+        <span className="font-mono text-base text-accent transition-transform group-hover:scale-110">ƒ</span>
+        <span className="font-medium">Reasoned formally</span>
         <span
-          className={`text-xs transition-transform duration-200 ${
+          className={`ml-1 text-sm text-muted-dark transition-transform duration-200 ${
             isExpanded ? "rotate-90" : "rotate-0"
           }`}
         >

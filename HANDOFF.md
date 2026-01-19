@@ -1,8 +1,8 @@
-# LOVE.WORKS — Development Handoff
+# LOVEBOMB.WORKS — Development Handoff
 
 ## Overview
 
-**love.works** is a relationship dynamics advisor built on a formal economic model. It applies ICAPM (Merton), variance risk premium, game theory, mechanism design, and behavioral economics to analyze relationship situations.
+**lovebomb.works** is a relationship dynamics advisor built on a formal economic model. It applies ICAPM (Merton), variance risk premium, game theory, mechanism design, and behavioral economics to analyze relationship situations.
 
 The product is a chat interface where users describe their relationship situations and receive formal economic analysis alongside natural language explanations.
 

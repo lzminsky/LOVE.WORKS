@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const COOKIE_NAME = "love-session";
+const COOKIE_NAME = "lovebomb-session";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export interface Session {

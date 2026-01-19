@@ -7,6 +7,8 @@ import { AboutPanel } from "@/components/modals/AboutPanel";
 import { ResetConfirmModal } from "@/components/modals/ResetConfirmModal";
 import { GateScreen } from "@/components/gate/GateScreen";
 import { ExportCard } from "@/components/export/ExportCard";
+import { CONFIG } from "@/lib/constants";
+import { Analytics } from "@/lib/analytics";
 
 type View = "chat" | "gate" | "export";
 
@@ -22,6 +24,18 @@ interface Equilibrium {
   }[];
 }
 
+interface Message {
+  id: string;
+  role: "system" | "user" | "assistant";
+  content: string;
+  phase?: string;
+  equilibrium?: Equilibrium;
+  formalAnalysis?: {
+    parameters: { param: string; value: string; basis: string }[];
+    extensions: { id: string; name: string; status: string; detail: string }[];
+  };
+}
+
 export default function Home() {
   const [currentView, setCurrentView] = useState<View>("chat");
   const [showWelcome, setShowWelcome] = useState(true);
@@ -29,10 +43,15 @@ export default function Home() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [latestEquilibrium, setLatestEquilibrium] = useState<Equilibrium | undefined>();
+  const [exportMessages, setExportMessages] = useState<Message[]>([]);
+  const [gatePromptCount, setGatePromptCount] = useState(CONFIG.maxFreeMessages);
 
-  // Check if user has seen welcome modal before
+  // Track page view and check if user has seen welcome modal before
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem("love-works-welcome-seen");
+    // Track page view
+    Analytics.pageView("home", document.referrer || undefined);
+
+    const hasSeenWelcome = localStorage.getItem("lovebomb-works-welcome-seen");
     if (hasSeenWelcome) {
       setShowWelcome(false);
     }
@@ -40,12 +59,12 @@ export default function Home() {
 
   const handleCloseWelcome = () => {
     setShowWelcome(false);
-    localStorage.setItem("love-works-welcome-seen", "true");
+    localStorage.setItem("lovebomb-works-welcome-seen", "true");
   };
 
   const handleShowAboutFromWelcome = () => {
     setShowWelcome(false);
-    localStorage.setItem("love-works-welcome-seen", "true");
+    localStorage.setItem("lovebomb-works-welcome-seen", "true");
     setShowAbout(true);
   };
 
@@ -68,9 +87,32 @@ export default function Home() {
     setLatestEquilibrium(equilibrium);
   }, []);
 
+  // Track messages for export
+  const handleMessagesUpdate = useCallback((messages: Message[]) => {
+    setExportMessages(messages);
+  }, []);
+
+  // Handler to show gate with current prompt count
+  const handleShowGate = useCallback((promptCount: number) => {
+    setGatePromptCount(promptCount);
+    setCurrentView("gate");
+  }, []);
+
+  // Handler to show export with messages
+  const handleShowExport = useCallback((messages: Message[]) => {
+    setExportMessages(messages);
+    setCurrentView("export");
+  }, []);
+
   // Render gate screen
   if (currentView === "gate") {
-    return <GateScreen onUnlock={handleUnlock} />;
+    return (
+      <GateScreen
+        onUnlock={handleUnlock}
+        promptCount={gatePromptCount}
+        maxPrompts={CONFIG.maxFreeMessages}
+      />
+    );
   }
 
   // Render export screen
@@ -79,6 +121,7 @@ export default function Home() {
       <ExportCard
         onBack={() => setCurrentView("chat")}
         equilibrium={latestEquilibrium}
+        messages={exportMessages}
       />
     );
   }
@@ -87,11 +130,12 @@ export default function Home() {
   return (
     <>
       <ChatInterface
-        onShowGate={() => setCurrentView("gate")}
+        onShowGate={handleShowGate}
         onShowAbout={() => setShowAbout(true)}
-        onShowExport={() => setCurrentView("export")}
+        onShowExport={handleShowExport}
         onShowResetConfirm={() => setShowResetConfirm(true)}
         onEquilibriumUpdate={handleEquilibriumUpdate}
+        onMessagesUpdate={handleMessagesUpdate}
       />
 
       {/* Modals */}

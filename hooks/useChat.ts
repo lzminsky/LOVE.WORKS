@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { Analytics } from "@/lib/analytics";
 
 export type ConversationPhase = "INTAKE" | "BUILDING" | "DIAGNOSIS";
 
@@ -47,20 +48,57 @@ interface StreamChunk {
 }
 
 interface UseChatOptions {
-  onGateRequired?: () => void;
+  onGateRequired?: (promptCount: number) => void;
+  onRateLimited?: (retryAfter: number) => void;
   initialMessages?: Message[];
 }
 
+// Error types for better handling
+export type ChatErrorType = "rate_limited" | "api_error" | "network_error" | "timeout";
+
+export interface ChatError {
+  type: ChatErrorType;
+  message: string;
+  retryAfter?: number;
+}
+
 export function useChat(options: UseChatOptions = {}) {
-  const { onGateRequired, initialMessages = [] } = options;
+  const { onGateRequired, onRateLimited, initialMessages = [] } = options;
 
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ChatError | null>(null);
   const [promptCount, setPromptCount] = useState(0);
+  const [maxPrompts, setMaxPrompts] = useState(10);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastMessageRef = useRef<string | null>(null);
+
+  const MAX_RETRIES = 3;
+  const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
+
+  // Fetch initial session state on mount
+  useEffect(() => {
+    async function fetchSession() {
+      try {
+        const response = await fetch("/api/session");
+        if (response.ok) {
+          const data = await response.json();
+          setPromptCount(data.promptCount);
+          setMaxPrompts(data.maxPrompts);
+          setIsUnlocked(data.isUnlocked);
+        }
+      } catch (err) {
+        console.error("Failed to fetch session:", err);
+      } finally {
+        setSessionLoaded(true);
+      }
+    }
+    fetchSession();
+  }, []);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -99,20 +137,54 @@ export function useChat(options: UseChatOptions = {}) {
           signal: abortControllerRef.current.signal,
         });
 
-        if (response.status === 403) {
-          const data = await response.json();
-          if (data.error === "gate_required") {
-            // Remove the empty assistant message
+        // Handle specific error responses
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+
+          // Gate required (403)
+          if (response.status === 403 && data.error === "gate_required") {
             setMessages((prev) => prev.filter((m) => m.id !== assistantId));
             setIsLoading(false);
-            onGateRequired?.();
+            onGateRequired?.(data.promptCount || maxPrompts);
             return;
           }
+
+          // Rate limited (429)
+          if (response.status === 429) {
+            const retryAfter = data.retryAfter || 5;
+            Analytics.rateLimited("per_second");
+            setError({
+              type: "rate_limited",
+              message: `Too many requests. Please wait ${retryAfter} seconds.`,
+              retryAfter,
+            });
+            setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+            setIsLoading(false);
+            onRateLimited?.(retryAfter);
+            return;
+          }
+
+          // Server error - attempt retry
+          if (response.status >= 500 && retryCount < MAX_RETRIES) {
+            setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+            setRetryCount((prev) => prev + 1);
+            lastMessageRef.current = content;
+            const delay = RETRY_DELAYS[retryCount] || 4000;
+            setTimeout(() => {
+              if (lastMessageRef.current) {
+                sendMessage(lastMessageRef.current);
+              }
+            }, delay);
+            return;
+          }
+
+          // Generic API error
+          throw new Error(data.message || "Failed to send message");
         }
 
-        if (!response.ok) {
-          throw new Error("Failed to send message");
-        }
+        // Reset retry count on success
+        setRetryCount(0);
+        lastMessageRef.current = null;
 
         // Process streaming response
         const reader = response.body?.getReader();
@@ -194,7 +266,27 @@ export function useChat(options: UseChatOptions = {}) {
           // Request was cancelled
           return;
         }
-        setError("Failed to send message. Please try again.");
+
+        // Determine error type
+        let errorType: ChatErrorType = "api_error";
+        let errorMessage = "Something went wrong. Please try again.";
+
+        if (err instanceof TypeError && err.message.includes("fetch")) {
+          errorType = "network_error";
+          errorMessage = "Network error. Please check your connection.";
+        } else if (err instanceof Error) {
+          if (err.message.includes("timeout")) {
+            errorType = "timeout";
+            errorMessage = "Request timed out. Please try again.";
+          } else if (err.message) {
+            errorMessage = err.message;
+          }
+        }
+
+        // Track error
+        Analytics.errorOccurred(errorType, errorMessage);
+
+        setError({ type: errorType, message: errorMessage });
         // Remove the failed assistant message
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
       } finally {
@@ -202,11 +294,14 @@ export function useChat(options: UseChatOptions = {}) {
         abortControllerRef.current = null;
       }
     },
-    [messages, onGateRequired]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [messages, onGateRequired, onRateLimited, maxPrompts, retryCount]
   );
 
   const cancel = useCallback(() => {
     abortControllerRef.current?.abort();
+    lastMessageRef.current = null;
+    setRetryCount(0);
   }, []);
 
   const clearError = useCallback(() => {
@@ -217,17 +312,31 @@ export function useChat(options: UseChatOptions = {}) {
     setMessages(initialMessages);
     setError(null);
     setIsLoading(false);
+    setRetryCount(0);
+    lastMessageRef.current = null;
   }, [initialMessages]);
+
+  // Retry function for manual retry
+  const retry = useCallback(() => {
+    if (lastMessageRef.current) {
+      setError(null);
+      sendMessage(lastMessageRef.current);
+    }
+  }, [sendMessage]);
 
   return {
     messages,
     isLoading,
     error,
     promptCount,
+    maxPrompts,
     isUnlocked,
+    sessionLoaded,
+    retryCount,
     sendMessage,
     cancel,
     clearError,
     reset,
+    retry,
   };
 }

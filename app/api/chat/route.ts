@@ -8,6 +8,7 @@ import {
 } from "@/lib/session";
 import { CONFIG } from "@/lib/constants";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
+import { checkRateLimit, getRateLimitHeaders } from "@/lib/rate-limit";
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -17,6 +18,29 @@ export async function POST(req: NextRequest) {
   try {
     // Get or create session
     const session = await getSession();
+
+    // Check rate limit (use session ID as identifier)
+    const rateLimitResult = await checkRateLimit(
+      session.sessionId,
+      session.isUnlocked
+    );
+
+    if (!rateLimitResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "rate_limited",
+          message: "Too many requests. Please wait before sending another message.",
+          retryAfter: rateLimitResult.retryAfter,
+        }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            ...getRateLimitHeaders(rateLimitResult),
+          },
+        }
+      );
+    }
 
     // Check if user has hit the gate
     if (!session.isUnlocked && session.promptCount >= CONFIG.maxFreeMessages) {
