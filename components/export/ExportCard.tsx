@@ -157,9 +157,7 @@ export function ExportCard({
 
   // Check if native sharing is available (iOS/Android)
   useEffect(() => {
-    if (typeof navigator !== "undefined" && navigator.share) {
-      setCanShare(true);
-    }
+    setCanShare(typeof navigator !== "undefined" && "share" in navigator);
   }, []);
 
   // Split name into lines for display
