@@ -24,9 +24,12 @@ export function Header({
 
   return (
     <header className="relative flex items-center justify-between border-b border-white/[0.06] bg-background px-4 py-3 pt-safe sm:px-6 md:px-8 md:py-4">
-      <div className="text-sm font-semibold tracking-tight text-text sm:text-[15px]">
-        {CONFIG.appName}
-      </div>
+      <a href="/" className="flex items-center gap-2 sm:gap-2.5">
+        <span className="font-mono text-lg text-accent sm:text-xl">ƒ</span>
+        <span className="text-sm font-semibold tracking-tight text-text sm:text-[15px]">
+          {CONFIG.appName}
+        </span>
+      </a>
 
       <div className="flex items-center gap-2 sm:gap-4 md:gap-5">
         {/* Prompt counter - shows remaining messages */}
