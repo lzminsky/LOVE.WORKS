@@ -12,12 +12,14 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
+  // Auto-resize textarea with minimum height for mobile
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+      // Minimum 56px on mobile for 2 lines, auto-grow up to 200px
+      const minHeight = 56;
+      textarea.style.height = `${Math.max(minHeight, Math.min(textarea.scrollHeight, 200))}px`;
     }
   }, [value]);
 
@@ -29,7 +31,9 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    // Submit on Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux)
+    // Plain Enter adds a new line (better for mobile)
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -49,9 +53,9 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Describe your situation..."
-          rows={1}
+          rows={2}
           disabled={disabled}
-          enterKeyHint="send"
+          enterKeyHint="return"
           className="flex-1 resize-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-3 text-base leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-white/[0.12] disabled:opacity-50 sm:rounded-[10px] sm:px-[18px] sm:py-3.5 sm:text-[15px]"
         />
         <button
