@@ -16,7 +16,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
       />
 
       {/* Panel - full width on mobile, slide-in on desktop */}
-      <div className="relative h-full w-full animate-slide-in overflow-x-hidden overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] px-5 py-6 pb-safe pt-safe sm:max-w-[580px] sm:px-10 sm:py-8">
+      <div className="relative h-full w-full animate-slide-in overflow-x-hidden overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] px-4 py-5 pb-safe pt-safe sm:max-w-[580px] sm:px-10 sm:py-8">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -31,44 +31,44 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
           About
         </div>
 
-        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text sm:mb-6 sm:text-[28px]">
+        <h2 className="mb-3 text-xl font-semibold tracking-tight text-text sm:mb-6 sm:text-[28px]">
           lovebomb.works
         </h2>
 
-        <div className="text-sm leading-relaxed text-muted sm:text-[15px] sm:leading-[1.8]">
-          <p className="mb-4 sm:mb-5">{COPY.about.intro}</p>
-          <p className="mb-4 sm:mb-5">{COPY.about.description}</p>
-          <p className="mb-6 font-medium text-accent sm:mb-8">{COPY.about.tagline}</p>
+        <div className="text-[13px] leading-[1.7] text-muted sm:text-[15px] sm:leading-[1.8]">
+          <p className="mb-3 sm:mb-5">{COPY.about.intro}</p>
+          <p className="mb-3 sm:mb-5">{COPY.about.description}</p>
+          <p className="mb-5 font-medium text-accent sm:mb-8">{COPY.about.tagline}</p>
         </div>
 
         {/* The Framework */}
-        <div className="mb-5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 sm:mb-6 sm:p-5">
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-3">
+        <div className="mb-4 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-3 sm:text-[11px]">
             The Framework
           </div>
-          <div className="mb-3 text-sm leading-relaxed text-muted sm:mb-4 sm:leading-[1.7]">
+          <div className="mb-3 text-[13px] leading-[1.6] text-muted sm:mb-4 sm:text-sm sm:leading-[1.7]">
             {COPY.about.framework}
           </div>
           <a
             href={LINKS.boundedWorks}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-4 py-2.5 text-[13px] font-medium text-accent transition-colors hover:bg-accent/20 sm:min-h-0"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3.5 py-2 text-[12px] font-medium text-accent transition-colors hover:bg-accent/20 sm:min-h-0 sm:px-4 sm:py-2.5 sm:text-[13px]"
           >
             Read the formal model →
           </a>
         </div>
 
         {/* Extensions list */}
-        <div className="mb-6 sm:mb-8">
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-4">
+        <div className="mb-5 sm:mb-8">
+          <div className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-4 sm:text-[11px]">
             10 Extensions
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="flex flex-wrap gap-1.5 sm:grid sm:grid-cols-2 sm:gap-2">
             {EXTENSIONS.map((ext, i) => (
               <div
                 key={i}
-                className="rounded-md border border-white/[0.06] bg-white/[0.03] px-3 py-2.5 font-mono text-xs text-muted"
+                className="rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1.5 font-mono text-[10px] text-muted sm:rounded-md sm:px-3 sm:py-2.5 sm:text-xs"
               >
                 {ext}
               </div>
@@ -77,18 +77,18 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
         </div>
 
         {/* Findings */}
-        <div className="mb-6 sm:mb-8">
-          <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-5">
+        <div className="mb-5 sm:mb-8">
+          <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-5 sm:text-[11px]">
             Findings
           </div>
 
           {/* Finding 1 */}
-          <div className="mb-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 sm:mb-6 sm:p-5">
-            <div className="mb-2 font-mono text-xs text-muted-dark sm:text-[13px]">01</div>
-            <div className="mb-2 text-sm font-semibold text-text sm:mb-3 sm:text-base">
+          <div className="mb-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
+            <div className="mb-1.5 font-mono text-[11px] text-muted-dark sm:mb-2 sm:text-[13px]">01</div>
+            <div className="mb-1.5 text-[13px] font-semibold text-text sm:mb-3 sm:text-base">
               People act according to their best interests
             </div>
-            <p className="text-sm leading-relaxed text-muted sm:leading-[1.7]">
+            <p className="text-[13px] leading-[1.6] text-muted sm:text-sm sm:leading-[1.7]">
               People aren&apos;t irrational. They&apos;re optimizing under
               constraints you can&apos;t see. The model makes those constraints
               visible.
@@ -96,12 +96,12 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
           </div>
 
           {/* Finding 2 */}
-          <div className="mb-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 sm:mb-6 sm:p-5">
-            <div className="mb-2 font-mono text-xs text-muted-dark sm:text-[13px]">02</div>
-            <div className="mb-2 text-sm font-semibold text-text sm:mb-3 sm:text-base">
+          <div className="mb-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
+            <div className="mb-1.5 font-mono text-[11px] text-muted-dark sm:mb-2 sm:text-[13px]">02</div>
+            <div className="mb-1.5 text-[13px] font-semibold text-text sm:mb-3 sm:text-base">
               The Manosphere is Wrong
             </div>
-            <div className="text-sm leading-relaxed text-muted sm:leading-[1.8]">
+            <div className="text-[13px] leading-[1.6] text-muted sm:text-sm sm:leading-[1.8]">
               <p className="mb-2 sm:mb-3">
                 Run the pure economic optimization for men in modern dating.
                 Account for legal asymmetries, information asymmetries, exit
@@ -121,23 +121,23 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
         </div>
 
         {/* Finding 3 — The Climax */}
-        <div className="mb-8 sm:mb-10">
+        <div className="mb-6 sm:mb-10">
           {/* Divider */}
-          <div className="mb-8 flex justify-center sm:mb-12">
-            <div className="h-px w-10 bg-accent/50" />
+          <div className="mb-6 flex justify-center sm:mb-12">
+            <div className="h-px w-8 bg-accent/50 sm:w-10" />
           </div>
 
           {/* Title — centered, large */}
-          <h3 className="mb-6 text-center text-xl font-semibold tracking-tight text-text sm:mb-9 sm:text-2xl">
+          <h3 className="mb-4 text-center text-lg font-semibold tracking-tight text-text sm:mb-9 sm:text-2xl">
             Love is the answer
           </h3>
 
           {/* Definition — centered */}
-          <div className="mb-5 text-center sm:mb-7">
-            <div className="mb-2 font-mono text-xs font-semibold tracking-wide text-accent sm:mb-3">
+          <div className="mb-4 text-center sm:mb-7">
+            <div className="mb-1.5 font-mono text-[11px] font-semibold tracking-wide text-accent sm:mb-3 sm:text-xs">
               LOVE (n.)
             </div>
-            <p className="mx-auto max-w-[400px] text-sm leading-relaxed text-muted sm:text-[15px] sm:leading-[1.8]">
+            <p className="mx-auto max-w-[320px] text-[13px] leading-[1.6] text-muted sm:max-w-[400px] sm:text-[15px] sm:leading-[1.8]">
               Unilateral disarmament through costly signaling of private
               information, inviting reciprocal disarmament, creating mutual
               hold-up vulnerability that aligns incentives.
@@ -145,27 +145,27 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
           </div>
 
           {/* Required structure — faded, smaller */}
-          <div className="mb-6 flex flex-col items-center gap-1 text-xs text-muted-dark sm:mb-10">
+          <div className="mb-5 flex flex-col items-center gap-0.5 text-[10px] text-muted-dark sm:mb-10 sm:gap-1 sm:text-xs">
             <span className="text-center">Costly signal · Unilateral disarmament · Invitation for reciprocity</span>
             <span>Mutual vulnerability · Aligned incentives</span>
           </div>
 
           {/* The centerpiece line */}
-          <p className="mx-auto mb-6 max-w-[380px] text-center text-lg font-medium leading-snug text-text sm:mb-10 sm:text-xl">
+          <p className="mx-auto mb-5 max-w-[300px] text-center text-base font-medium leading-snug text-text sm:mb-10 sm:max-w-[380px] sm:text-xl">
             Choosing to be destroyable by someone—and them choosing the same for you.
           </p>
 
           {/* Supporting text */}
-          <div className="mx-auto max-w-[400px] text-center">
-            <p className="mb-3 text-sm leading-relaxed text-muted-dark sm:mb-4 sm:leading-[1.8]">
+          <div className="mx-auto max-w-[320px] text-center sm:max-w-[400px]">
+            <p className="mb-2.5 text-[13px] leading-[1.6] text-muted-dark sm:mb-4 sm:text-sm sm:leading-[1.8]">
               Love and exploitation cannot coexist. Love IS the exit from
               strategic positioning.
             </p>
-            <p className="mb-3 text-sm leading-relaxed text-muted-dark sm:mb-4 sm:leading-[1.8]">
+            <p className="mb-2.5 text-[13px] leading-[1.6] text-muted-dark sm:mb-4 sm:text-sm sm:leading-[1.8]">
               Not attachment. Not affection. Not &quot;I love you but I&apos;m
               keeping options open.&quot;
             </p>
-            <p className="text-sm font-medium leading-relaxed text-muted sm:text-[15px] sm:leading-[1.8]">
+            <p className="text-[13px] font-medium leading-[1.6] text-muted sm:text-[15px] sm:leading-[1.8]">
               Mutual disarmament. Equal exposure. The deliberate surrender of
               strategic advantage.
             </p>
@@ -173,8 +173,8 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/[0.06] pt-4 sm:pt-6">
-          <div className="mb-2 text-xs text-muted-dark sm:mb-3 sm:text-[13px]">
+        <div className="border-t border-white/[0.06] pt-3.5 sm:pt-6">
+          <div className="mb-1.5 text-[11px] text-muted-dark sm:mb-3 sm:text-[13px]">
             A{" "}
             <a
               href={LINKS.boundedWorks}
@@ -188,7 +188,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
             href={LINKS.twitter}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-muted-dark transition-colors hover:text-muted sm:text-[13px]"
+            className="text-[11px] text-muted-dark transition-colors hover:text-muted sm:text-[13px]"
           >
             {LINKS.twitterHandle}
           </a>

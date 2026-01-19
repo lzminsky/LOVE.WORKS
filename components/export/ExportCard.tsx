@@ -263,16 +263,16 @@ ${conversationContent}
   }, [messages]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pb-safe pt-safe text-text sm:p-6">
-      <div className="mb-4 text-xs uppercase tracking-[0.1em] text-muted-dark sm:mb-6 sm:text-[13px]">
+    <div className="flex min-h-screen flex-col items-center bg-background px-4 py-6 pb-20 pt-safe text-text sm:justify-center sm:p-6 sm:pb-20">
+      <div className="mb-3 text-[11px] uppercase tracking-[0.1em] text-muted-dark sm:mb-6 sm:text-[13px]">
         Export Preview
       </div>
 
       {/* Card Preview - responsive scaling */}
-      <div className="mb-6 w-full max-w-[600px] overflow-hidden sm:mb-8">
+      <div className="mb-5 w-full max-w-[600px] overflow-hidden sm:mb-8">
         <div
           ref={cardRef}
-          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-4 sm:rounded-xl sm:p-8 md:p-12"
+          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-3 sm:rounded-xl sm:p-8 md:p-12"
           style={{ transformOrigin: "center" }}
         >
           {/* Grid background */}
@@ -336,48 +336,48 @@ ${conversationContent}
 
       {/* Action buttons - responsive layout */}
       <div className="flex w-full max-w-[600px] flex-col items-center gap-2 sm:gap-3">
-        {/* Primary actions */}
-        <div className="flex w-full flex-wrap justify-center gap-2 sm:gap-3">
+        {/* Primary actions - stack on mobile */}
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           <button
             onClick={handleCopyLink}
-            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:flex-none sm:px-5 sm:py-3"
+            className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             {linkCopied ? "✓ Copied!" : "Copy Link"}
           </button>
           <button
             onClick={handleShareTwitter}
-            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:flex-none sm:px-5 sm:py-3"
+            className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             Share to 𝕏
           </button>
           <button
             onClick={handleDownloadPNG}
             disabled={isExporting}
-            className="min-h-[44px] w-full rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:w-auto sm:px-5 sm:py-3"
+            className="col-span-2 min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:col-span-1 sm:px-5 sm:py-3 sm:text-sm"
           >
             {isExporting ? "Exporting..." : "Download PNG"}
           </button>
         </div>
 
         {/* Secondary actions */}
-        <div className="flex w-full flex-wrap justify-center gap-2 sm:gap-3">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           <button
             onClick={onBack}
-            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm text-muted transition-colors hover:border-white/20 hover:text-text sm:flex-none sm:px-5 sm:py-3"
+            className="min-h-[44px] rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-[13px] text-muted transition-colors hover:border-white/20 hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             ← Back
           </button>
           <button
             onClick={handleDownloadMarkdown}
-            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm text-muted-dark transition-colors hover:border-white/20 hover:text-muted sm:flex-none sm:px-5 sm:py-3"
+            className="min-h-[44px] rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-[13px] text-muted-dark transition-colors hover:border-white/20 hover:text-muted sm:px-5 sm:py-3 sm:text-sm"
           >
-            Download Markdown
+            Markdown
           </button>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 pb-safe">
+      {/* Footer - positioned at bottom but not absolute to avoid overlap */}
+      <div className="mt-auto w-full pt-6 sm:absolute sm:bottom-0 sm:left-0 sm:right-0 sm:mt-0 sm:pb-safe sm:pt-0">
         <Footer />
       </div>
     </div>
