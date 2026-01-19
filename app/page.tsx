@@ -44,7 +44,7 @@ export default function Home() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [latestEquilibrium, setLatestEquilibrium] = useState<Equilibrium | undefined>();
   const [exportMessages, setExportMessages] = useState<Message[]>([]);
-  const [gatePromptCount, setGatePromptCount] = useState(CONFIG.maxFreeMessages);
+  const [gatePromptCount, setGatePromptCount] = useState<number>(CONFIG.maxFreeMessages);
 
   // Track page view and check if user has seen welcome modal before
   useEffect(() => {
