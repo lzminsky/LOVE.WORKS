@@ -38,10 +38,10 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   const canSubmit = value.trim() && !isLoading && !disabled;
 
   return (
-    <div className="border-t border-white/[0.06] bg-background/95 px-6 pb-6 pt-5 backdrop-blur-xl">
+    <div className="border-t border-white/[0.06] bg-background/95 px-4 pb-4 pb-safe pt-4 backdrop-blur-xl sm:px-6 sm:pb-6 sm:pt-5">
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex max-w-[680px] items-end gap-3"
+        className="mx-auto flex max-w-[680px] items-end gap-2 sm:gap-3"
       >
         <textarea
           ref={textareaRef}
@@ -51,18 +51,20 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           placeholder="Describe your situation..."
           rows={1}
           disabled={disabled}
-          className="flex-1 resize-none rounded-[10px] border border-white/[0.08] bg-white/[0.03] px-[18px] py-3.5 text-[15px] leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-white/[0.12] disabled:opacity-50"
+          enterKeyHint="send"
+          className="flex-1 resize-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-3 text-base leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-white/[0.12] disabled:opacity-50 sm:rounded-[10px] sm:px-[18px] sm:py-3.5 sm:text-[15px]"
         />
         <button
           type="submit"
           disabled={!canSubmit}
-          className={`flex items-center justify-center rounded-[10px] p-3.5 transition-colors ${
+          aria-label="Send message"
+          className={`flex min-h-[48px] min-w-[48px] items-center justify-center rounded-lg transition-colors sm:min-h-0 sm:min-w-0 sm:rounded-[10px] sm:p-3.5 ${
             canSubmit
               ? "bg-accent text-background hover:bg-accent-hover"
               : "bg-white/[0.05] text-muted-dark"
           }`}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="sm:h-[18px] sm:w-[18px]">
             <path
               d="M12 19V5M12 5L5 12M12 5L19 12"
               stroke="currentColor"

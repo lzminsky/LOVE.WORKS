@@ -158,7 +158,7 @@ function parseThinkingContent(content: string): ParsedSection[] {
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="mb-4 mt-6 text-[11px] font-semibold uppercase tracking-[0.1em] text-neutral-600 first:mt-0">
+    <div className="mb-3 mt-5 text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-600 first:mt-0 sm:mb-4 sm:mt-6 sm:text-[11px]">
       {title}
     </div>
   );
@@ -178,22 +178,22 @@ function ExtensionLine({
   const isActive = status === "ACTIVE" || status === "PRIMARY";
   return (
     <div
-      className={`mb-3 rounded-lg border-l-2 bg-white/[0.02] p-3.5 px-4 ${
+      className={`mb-2.5 rounded-lg border-l-2 bg-white/[0.02] p-3 sm:mb-3 sm:p-3.5 sm:px-4 ${
         isActive ? "border-accent" : "border-neutral-700"
       }`}
     >
-      <div className="mb-2 flex items-center gap-3">
-        <span className="text-neutral-600">{id}</span>
-        <span className="text-neutral-200">{name}</span>
+      <div className="mb-1.5 flex flex-wrap items-center gap-2 sm:mb-2 sm:gap-3">
+        <span className="text-[11px] text-neutral-600 sm:text-xs">{id}</span>
+        <span className="text-[11px] text-neutral-200 sm:text-xs">{name}</span>
         <span
-          className={`rounded px-2 py-0.5 text-[10px] font-semibold tracking-[0.05em] ${
+          className={`rounded px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.05em] sm:px-2 sm:text-[10px] ${
             isActive ? "bg-accent/15 text-accent" : "bg-white/[0.05] text-neutral-500"
           }`}
         >
           {status}
         </span>
       </div>
-      {detail && <div className="text-xs text-neutral-500">{detail}</div>}
+      {detail && <div className="text-[10px] text-neutral-500 sm:text-xs">{detail}</div>}
     </div>
   );
 }
@@ -206,11 +206,11 @@ function ParameterLine({ param, value }: { param: string; value: string }) {
     // Split into parts and render as a list
     const parts = value.split(/\s*[-•]\s+/).filter(Boolean);
     return (
-      <div className="border-b border-white/[0.04] py-3 last:border-0">
-        <div className="mb-2 text-accent">{param}</div>
+      <div className="border-b border-white/[0.04] py-2.5 last:border-0 sm:py-3">
+        <div className="mb-1.5 text-[11px] text-accent sm:mb-2 sm:text-xs">{param}</div>
         <div className="ml-2 space-y-1">
           {parts.map((part, i) => (
-            <div key={i} className="flex gap-2 text-neutral-500">
+            <div key={i} className="flex gap-2 text-[10px] text-neutral-500 sm:text-xs">
               <span className="flex-shrink-0 text-neutral-600">→</span>
               <span>{part}</span>
             </div>
@@ -227,7 +227,7 @@ function ParameterLine({ param, value }: { param: string; value: string }) {
   if (separatorMatch) {
     const [, mainValue, explanation] = separatorMatch;
     return (
-      <div className="grid grid-cols-[140px_140px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5">
+      <div className="flex flex-col gap-1 rounded-md bg-white/[0.02] px-3 py-2 text-[10px] sm:grid sm:grid-cols-[140px_140px_1fr] sm:gap-4 sm:px-3.5 sm:py-2.5 sm:text-xs">
         <span className="flex-shrink-0 text-accent">{param}</span>
         <span className="text-neutral-400">{mainValue.trim()}</span>
         <span className="text-neutral-600">{explanation.trim()}</span>
@@ -237,7 +237,7 @@ function ParameterLine({ param, value }: { param: string; value: string }) {
 
   // Simple two-column layout for param: value
   return (
-    <div className="grid grid-cols-[140px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5">
+    <div className="flex flex-col gap-1 rounded-md bg-white/[0.02] px-3 py-2 text-[10px] sm:grid sm:grid-cols-[140px_1fr] sm:gap-4 sm:px-3.5 sm:py-2.5 sm:text-xs">
       <span className="flex-shrink-0 text-accent">{param}</span>
       <span className="text-neutral-500">{value}</span>
     </div>
@@ -250,7 +250,7 @@ function EquationLine({ content }: { content: string }) {
 
   if (isWhereClause) {
     return (
-      <div className="my-2 text-[12px] text-neutral-500">
+      <div className="my-1.5 text-[10px] text-neutral-500 sm:my-2 sm:text-[12px]">
         {content}
       </div>
     );
@@ -260,15 +260,15 @@ function EquationLine({ content }: { content: string }) {
   const labelMatch = content.match(/^([^:=]+):\s*(.+)$/);
   if (labelMatch && !content.includes("===")) {
     return (
-      <div className="my-2">
-        <div className="mb-1 text-[11px] text-neutral-600">{labelMatch[1]}</div>
-        <div className="rounded bg-white/[0.03] px-3 py-2 text-neutral-300">{labelMatch[2]}</div>
+      <div className="my-1.5 sm:my-2">
+        <div className="mb-1 text-[10px] text-neutral-600 sm:text-[11px]">{labelMatch[1]}</div>
+        <div className="overflow-x-auto rounded bg-white/[0.03] px-2.5 py-1.5 text-[10px] text-neutral-300 sm:px-3 sm:py-2 sm:text-xs">{labelMatch[2]}</div>
       </div>
     );
   }
 
   return (
-    <div className="my-2 rounded bg-white/[0.03] px-3 py-2 text-neutral-300">{content}</div>
+    <div className="my-1.5 overflow-x-auto rounded bg-white/[0.03] px-2.5 py-1.5 text-[10px] text-neutral-300 sm:my-2 sm:px-3 sm:py-2 sm:text-xs">{content}</div>
   );
 }
 
@@ -289,8 +289,8 @@ function TableBlock({ content }: { content: string }) {
   const isHeader = (idx: number) => idx === 0;
 
   return (
-    <div className="my-3 overflow-x-auto">
-      <table className="w-full text-[12px]">
+    <div className="my-2.5 overflow-x-auto sm:my-3">
+      <table className="w-full text-[10px] sm:text-[12px]">
         <tbody>
           {dataRows.map((row, rowIdx) => (
             <tr
@@ -300,7 +300,7 @@ function TableBlock({ content }: { content: string }) {
               {row.map((cell, cellIdx) => (
                 <td
                   key={cellIdx}
-                  className={`px-2 py-1.5 ${
+                  className={`px-1.5 py-1 sm:px-2 sm:py-1.5 ${
                     isHeader(rowIdx)
                       ? "text-neutral-500 font-medium"
                       : cellIdx === 0
@@ -322,9 +322,9 @@ function TableBlock({ content }: { content: string }) {
 function TextLine({ content }: { content: string }) {
   // Check if it looks like a sub-bullet or continuation
   if (content.startsWith("-") || content.startsWith("•")) {
-    return <div className="ml-4 text-neutral-500">{content}</div>;
+    return <div className="ml-3 text-[10px] text-neutral-500 sm:ml-4 sm:text-xs">{content}</div>;
   }
-  return <div className="text-neutral-500">{content}</div>;
+  return <div className="text-[10px] text-neutral-500 sm:text-xs">{content}</div>;
 }
 
 export function ThinkingBlock({ content }: ThinkingBlockProps) {
@@ -350,12 +350,12 @@ export function ThinkingBlock({ content }: ThinkingBlockProps) {
   }
 
   return (
-    <div className="rounded-[10px] border border-white/[0.06] border-l-2 border-l-accent/30 bg-black/40 p-6 font-mono text-[13px] leading-[1.7]">
+    <div className="rounded-lg border border-white/[0.06] border-l-2 border-l-accent/30 bg-black/40 p-4 font-mono text-xs leading-relaxed sm:rounded-[10px] sm:p-6 sm:text-[13px] sm:leading-[1.7]">
       {grouped.map((item, i) => {
         // Parameter group
         if (Array.isArray(item)) {
           return (
-            <div key={i} className="mb-4 flex flex-col gap-2">
+            <div key={i} className="mb-3 flex flex-col gap-1.5 sm:mb-4 sm:gap-2">
               {item.map((param, j) => (
                 <ParameterLine
                   key={j}

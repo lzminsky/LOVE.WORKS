@@ -57,15 +57,15 @@ export function ProbabilityRow({
 
   return (
     <div
-      className={`flex items-center gap-3 transition-opacity duration-300 ${
+      className={`flex items-center gap-2 transition-opacity duration-300 sm:gap-3 ${
         shouldAnimate ? "opacity-100" : "opacity-30"
       }`}
     >
-      <div className={`h-2 w-2 flex-shrink-0 rounded-full ${colors.dot}`} />
-      <span className={`w-9 flex-shrink-0 font-mono text-[13px] ${colors.value}`}>
+      <div className={`h-1.5 w-1.5 flex-shrink-0 rounded-full sm:h-2 sm:w-2 ${colors.dot}`} />
+      <span className={`w-8 flex-shrink-0 font-mono text-xs sm:w-9 sm:text-[13px] ${colors.value}`}>
         {shouldAnimate ? displayValue : 0}%
       </span>
-      <span className={`text-sm ${colors.text}`}>{outcome}</span>
+      <span className={`text-xs sm:text-sm ${colors.text}`}>{outcome}</span>
     </div>
   );
 }

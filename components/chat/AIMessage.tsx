@@ -122,7 +122,7 @@ export function AIMessage({
   const loadingMessage = getPhaseLoadingMessage(phase);
 
   return (
-    <div className="rounded-xl bg-white/[0.02] p-6">
+    <div className="rounded-xl bg-white/[0.02] p-4 sm:p-6">
       {/* Phase indicator for DIAGNOSIS */}
       {phase === "DIAGNOSIS" && paragraphs.length === 0 && !showThinkingIndicator && (
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
@@ -133,7 +133,7 @@ export function AIMessage({
 
       {/* Thinking indicator while streaming */}
       {showThinkingIndicator && paragraphs.length === 0 && (
-        <div className="mb-6 flex items-center gap-3 text-[13px] text-neutral-500">
+        <div className="mb-4 flex items-center gap-2 text-xs text-neutral-500 sm:mb-6 sm:gap-3 sm:text-[13px]">
           <span className="font-mono text-accent">ƒ</span>
           <span>{loadingMessage}</span>
           <span className="flex gap-1">
@@ -146,10 +146,10 @@ export function AIMessage({
 
       {/* Response text */}
       {paragraphs.length > 0 && (
-        <div className={showEquilibriumCard || showFormalSection ? "mb-8" : ""}>
-          <div className="text-[15px] leading-[1.8] text-neutral-300">
+        <div className={showEquilibriumCard || showFormalSection ? "mb-6 sm:mb-8" : ""}>
+          <div className="text-sm leading-relaxed text-neutral-300 sm:text-[15px] sm:leading-[1.8]">
             {paragraphs.map((paragraph, i) => (
-              <p key={i} className={i < paragraphs.length - 1 ? "mb-4" : ""}>
+              <p key={i} className={i < paragraphs.length - 1 ? "mb-3 sm:mb-4" : ""}>
                 {paragraph}
               </p>
             ))}
@@ -159,7 +159,7 @@ export function AIMessage({
 
       {/* Equilibrium Card - ONLY in DIAGNOSIS phase */}
       {showEquilibriumCard && (
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <EquilibriumCard
             id={equilibrium.id}
             name={equilibrium.name}

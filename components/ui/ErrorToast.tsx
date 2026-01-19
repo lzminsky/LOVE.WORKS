@@ -27,31 +27,31 @@ export function ErrorToast({ error, onDismiss, onRetry }: ErrorToastProps) {
   const showRetry = errorType !== "rate_limited";
 
   return (
-    <div className="flex items-start gap-3.5 rounded-[10px] border border-error/20 bg-error/10 p-4 px-5">
+    <div className="flex items-start gap-2.5 rounded-lg border border-error/20 bg-error/10 p-3 sm:gap-3.5 sm:rounded-[10px] sm:p-4 sm:px-5">
       {/* Error icon */}
       <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-error/20">
         <span className="text-xs font-bold text-error">!</span>
       </div>
 
-      <div className="flex-1">
-        <div className="mb-1 text-sm font-semibold text-error">{displayError.title}</div>
-        <div className="text-[13px] leading-relaxed text-muted">
+      <div className="min-w-0 flex-1">
+        <div className="mb-0.5 text-[13px] font-semibold text-error sm:mb-1 sm:text-sm">{displayError.title}</div>
+        <div className="text-xs leading-relaxed text-muted sm:text-[13px]">
           {displayError.message}
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-shrink-0 gap-1.5 sm:gap-2">
         {showRetry && onRetry && (
           <button
             onClick={onRetry}
-            className="rounded-md border border-error/30 bg-error/10 px-3 py-1.5 text-xs font-medium text-error transition-colors hover:bg-error/20"
+            className="min-h-[36px] rounded-md border border-error/30 bg-error/10 px-2.5 py-1.5 text-[11px] font-medium text-error transition-colors hover:bg-error/20 sm:min-h-0 sm:px-3 sm:text-xs"
           >
             Retry
           </button>
         )}
         <button
           onClick={onDismiss}
-          className="p-1.5 text-base leading-none text-muted-dark transition-colors hover:text-muted"
+          className="min-h-[36px] min-w-[36px] p-1.5 text-base leading-none text-muted-dark transition-colors hover:text-muted sm:min-h-0 sm:min-w-0"
         >
           ×
         </button>

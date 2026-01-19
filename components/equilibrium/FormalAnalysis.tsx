@@ -56,25 +56,25 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
         <>
           {/* If we have raw thinking content, show it styled */}
           {hasRawThinking && (
-            <div className="mt-5">
+            <div className="mt-4 sm:mt-5">
               <ThinkingBlock content={rawThinking} />
             </div>
           )}
 
           {/* If we have structured data (from JSON blocks), show that too */}
           {hasStructuredData && (
-            <div className="mt-5 rounded-[10px] border border-white/[0.06] bg-black/40 p-6 font-mono text-[13px] leading-[1.7]">
+            <div className="mt-4 rounded-lg border border-white/[0.06] bg-black/40 p-4 font-mono text-xs leading-relaxed sm:mt-5 sm:rounded-[10px] sm:p-6 sm:text-[13px] sm:leading-[1.7]">
               {/* Parameters */}
               {parameters && parameters.length > 0 && (
-                <div className="mb-6">
-                  <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-dark">
+                <div className="mb-4 sm:mb-6">
+                  <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-4 sm:text-[11px]">
                     Parameter Estimation
                   </div>
                   <div className="flex flex-col gap-2">
                     {parameters.map((row, i) => (
                       <div
                         key={i}
-                        className="grid grid-cols-[160px_140px_1fr] gap-4 rounded-md bg-white/[0.02] px-3.5 py-2.5"
+                        className="flex flex-col gap-1 rounded-md bg-white/[0.02] px-3 py-2 sm:grid sm:grid-cols-[160px_140px_1fr] sm:gap-4 sm:px-3.5 sm:py-2.5"
                       >
                         <span className="flex-shrink-0 truncate text-accent">{row.param}</span>
                         <span className="text-muted">{row.value}</span>
@@ -88,22 +88,22 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
               {/* Extensions */}
               {extensions && extensions.length > 0 && (
                 <div>
-                  <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-dark">
+                  <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-4 sm:text-[11px]">
                     Active Extensions
                   </div>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2 sm:gap-3">
                     {extensions.map((ext, i) => (
                       <div
                         key={i}
-                        className={`rounded-lg border-l-2 bg-white/[0.02] p-3.5 px-4 ${
+                        className={`rounded-lg border-l-2 bg-white/[0.02] p-3 sm:p-3.5 sm:px-4 ${
                           ext.status === "ACTIVE" ? "border-accent" : "border-muted-dark"
                         }`}
                       >
-                        <div className="mb-2 flex items-center gap-3">
+                        <div className="mb-1.5 flex flex-wrap items-center gap-2 sm:mb-2 sm:gap-3">
                           <span className="text-muted-dark">{ext.id}</span>
                           <span className="text-text">{ext.name}</span>
                           <span
-                            className={`rounded px-2 py-0.5 text-[10px] font-semibold tracking-[0.05em] ${
+                            className={`rounded px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.05em] sm:px-2 sm:text-[10px] ${
                               ext.status === "ACTIVE"
                                 ? "bg-accent/15 text-accent"
                                 : "bg-white/[0.05] text-muted-dark"
@@ -112,7 +112,7 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
                             {ext.status}
                           </span>
                         </div>
-                        <div className="text-xs text-muted">{ext.detail}</div>
+                        <div className="text-[10px] text-muted sm:text-xs">{ext.detail}</div>
                       </div>
                     ))}
                   </div>

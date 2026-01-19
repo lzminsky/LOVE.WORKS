@@ -263,111 +263,113 @@ ${conversationContent}
   }, [messages]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
-      <div className="mb-6 text-[13px] uppercase tracking-[0.1em] text-muted-dark">
-        Export Preview — 1200×628
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pb-safe pt-safe text-text sm:p-6">
+      <div className="mb-4 text-xs uppercase tracking-[0.1em] text-muted-dark sm:mb-6 sm:text-[13px]">
+        Export Preview
       </div>
 
-      {/* Card Preview (scaled down from 1200x628 to 600x314) */}
-      <div
-        ref={cardRef}
-        className="relative mb-8 h-[314px] w-[600px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0d0d0d] p-12"
-        style={{ transform: "scale(1)", transformOrigin: "center" }}
-      >
-        {/* Grid background */}
+      {/* Card Preview - responsive scaling */}
+      <div className="mb-6 w-full max-w-[600px] overflow-hidden sm:mb-8">
         <div
-          className="pointer-events-none absolute inset-0 opacity-50"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-            `,
-            backgroundSize: "32px 32px",
-          }}
-        />
+          ref={cardRef}
+          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-4 sm:rounded-xl sm:p-8 md:p-12"
+          style={{ transformOrigin: "center" }}
+        >
+          {/* Grid background */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+              `,
+              backgroundSize: "32px 32px",
+            }}
+          />
 
-        <div className="relative z-10 flex h-full flex-col justify-between">
-          <div>
-            <div className="mb-5 flex items-center gap-2">
-              <span className="rounded bg-white/[0.05] px-2 py-1 font-mono text-[11px] text-muted-dark">
-                {equilibrium.id}
-              </span>
-              <span className="text-[11px] font-medium text-accent">
-                {equilibrium.confidence}% confidence
-              </span>
-            </div>
-
-            <h1 className="mb-4 text-4xl font-semibold leading-none tracking-tight text-text">
-              {line1}
-              {line2 && (
-                <>
-                  <br />
-                  {line2}
-                </>
-              )}
-            </h1>
-
-            <p className="max-w-[400px] text-base leading-relaxed text-muted">
-              {tagline || equilibrium.description}
-            </p>
-          </div>
-
-          <div className="flex items-end justify-between">
-            {topPrediction && (
-              <div className="flex items-center gap-2.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                <span className="font-mono text-sm text-accent">
-                  {topPrediction.probability}%
+          <div className="relative z-10 flex h-full flex-col justify-between">
+            <div>
+              <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:mb-5 sm:gap-2">
+                <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono text-[9px] text-muted-dark sm:px-2 sm:py-1 sm:text-[11px]">
+                  {equilibrium.id}
                 </span>
-                <span className="text-sm text-muted">
-                  {topPrediction.outcome}
+                <span className="text-[9px] font-medium text-accent sm:text-[11px]">
+                  {equilibrium.confidence}% confidence
                 </span>
               </div>
-            )}
 
-            <div className="text-sm font-semibold text-muted-dark">
-              lovebomb.works
+              <h1 className="mb-2 text-lg font-semibold leading-tight tracking-tight text-text sm:mb-4 sm:text-2xl md:text-4xl md:leading-none">
+                {line1}
+                {line2 && (
+                  <>
+                    <br />
+                    {line2}
+                  </>
+                )}
+              </h1>
+
+              <p className="max-w-[85%] text-xs leading-relaxed text-muted sm:max-w-[400px] sm:text-sm md:text-base">
+                {tagline || equilibrium.description}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              {topPrediction && (
+                <div className="flex items-center gap-1.5 sm:gap-2.5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-accent sm:h-2.5 sm:w-2.5" />
+                  <span className="font-mono text-xs text-accent sm:text-sm">
+                    {topPrediction.probability}%
+                  </span>
+                  <span className="text-xs text-muted sm:text-sm">
+                    {topPrediction.outcome}
+                  </span>
+                </div>
+              )}
+
+              <div className="text-xs font-semibold text-muted-dark sm:text-sm">
+                lovebomb.works
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Action buttons - two rows */}
-      <div className="flex flex-col items-center gap-3">
+      {/* Action buttons - responsive layout */}
+      <div className="flex w-full max-w-[600px] flex-col items-center gap-2 sm:gap-3">
         {/* Primary actions */}
-        <div className="flex gap-3">
+        <div className="flex w-full flex-wrap justify-center gap-2 sm:gap-3">
           <button
             onClick={handleCopyLink}
-            className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
+            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:flex-none sm:px-5 sm:py-3"
           >
             {linkCopied ? "✓ Copied!" : "Copy Link"}
           </button>
           <button
             onClick={handleShareTwitter}
-            className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
+            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:flex-none sm:px-5 sm:py-3"
           >
             Share to 𝕏
           </button>
           <button
             onClick={handleDownloadPNG}
             disabled={isExporting}
-            className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50"
+            className="min-h-[44px] w-full rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:w-auto sm:px-5 sm:py-3"
           >
             {isExporting ? "Exporting..." : "Download PNG"}
           </button>
         </div>
 
         {/* Secondary actions */}
-        <div className="flex gap-3">
+        <div className="flex w-full flex-wrap justify-center gap-2 sm:gap-3">
           <button
             onClick={onBack}
-            className="rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm text-muted transition-colors hover:border-white/20 hover:text-text"
+            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm text-muted transition-colors hover:border-white/20 hover:text-text sm:flex-none sm:px-5 sm:py-3"
           >
             ← Back
           </button>
           <button
             onClick={handleDownloadMarkdown}
-            className="rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm text-muted-dark transition-colors hover:border-white/20 hover:text-muted"
+            className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm text-muted-dark transition-colors hover:border-white/20 hover:text-muted sm:flex-none sm:px-5 sm:py-3"
           >
             Download Markdown
           </button>
@@ -375,7 +377,7 @@ ${conversationContent}
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 pb-safe">
         <Footer />
       </div>
     </div>

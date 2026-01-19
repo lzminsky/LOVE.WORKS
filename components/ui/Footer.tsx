@@ -2,8 +2,8 @@ import { LINKS, CONFIG } from "@/lib/constants";
 
 export function Footer() {
   return (
-    <footer className="flex items-center justify-center gap-4 border-t border-white/[0.04] bg-background px-6 py-4">
-      <span className="text-xs text-muted-darker">
+    <footer className="flex items-center justify-center gap-3 border-t border-white/[0.04] bg-background px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
+      <span className="text-[11px] text-muted-darker sm:text-xs">
         A{" "}
         <a
           href={LINKS.boundedWorks}
@@ -20,7 +20,7 @@ export function Footer() {
         href={LINKS.twitter}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs text-muted-darker transition-colors hover:text-muted"
+        className="text-[11px] text-muted-darker transition-colors hover:text-muted sm:text-xs"
       >
         {LINKS.twitterHandle}
       </a>

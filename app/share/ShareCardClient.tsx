@@ -27,18 +27,18 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
   // Handle missing data
   if (!data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
-        <h1 className="mb-4 text-2xl font-semibold">Invalid share link</h1>
-        <p className="mb-8 text-muted">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pb-safe pt-safe text-text sm:p-6">
+        <h1 className="mb-3 text-xl font-semibold sm:mb-4 sm:text-2xl">Invalid share link</h1>
+        <p className="mb-6 text-sm text-muted sm:mb-8 sm:text-base">
           This link doesn&apos;t contain valid data.
         </p>
         <Link
           href="/"
-          className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
+          className="min-h-[44px] rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover sm:px-5"
         >
           Try lovebomb.works →
         </Link>
-        <div className="absolute bottom-0 left-0 right-0">
+        <div className="absolute bottom-0 left-0 right-0 pb-safe">
           <Footer />
         </div>
       </div>
@@ -83,97 +83,100 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
-      <div className="mb-6 text-[13px] uppercase tracking-[0.1em] text-muted-dark">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pb-safe pt-safe text-text sm:p-6">
+      <div className="mb-4 text-xs uppercase tracking-[0.1em] text-muted-dark sm:mb-6 sm:text-[13px]">
         Shared Result
       </div>
 
-      {/* Card */}
-      <div
-        ref={cardRef}
-        className="relative mb-8 h-[314px] w-[600px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0d0d0d] p-12"
-      >
-        {/* Grid background */}
+      {/* Card - responsive scaling */}
+      <div className="mb-6 w-full max-w-[600px] overflow-hidden sm:mb-8">
         <div
-          className="pointer-events-none absolute inset-0 opacity-50"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-            `,
-            backgroundSize: "32px 32px",
-          }}
-        />
+          ref={cardRef}
+          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-4 sm:rounded-xl sm:p-8 md:p-12"
+          style={{ transformOrigin: "center" }}
+        >
+          {/* Grid background */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+              `,
+              backgroundSize: "32px 32px",
+            }}
+          />
 
-        <div className="relative z-10 flex h-full flex-col justify-between">
-          <div>
-            <div className="mb-5 flex items-center gap-2">
-              <span className="rounded bg-white/[0.05] px-2 py-1 font-mono text-[11px] text-muted-dark">
-                {data.id}
-              </span>
-              <span className="text-[11px] font-medium text-accent">
-                {data.confidence}% confidence
-              </span>
+          <div className="relative z-10 flex h-full flex-col justify-between">
+            <div>
+              <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:mb-5 sm:gap-2">
+                <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono text-[9px] text-muted-dark sm:px-2 sm:py-1 sm:text-[11px]">
+                  {data.id}
+                </span>
+                <span className="text-[9px] font-medium text-accent sm:text-[11px]">
+                  {data.confidence}% confidence
+                </span>
+              </div>
+
+              <h1 className="mb-2 text-lg font-semibold leading-tight tracking-tight text-text sm:mb-4 sm:text-2xl md:text-4xl md:leading-none">
+                {line1}
+                {line2 && (
+                  <>
+                    <br />
+                    {line2}
+                  </>
+                )}
+              </h1>
+
+              <p className="max-w-[85%] text-xs leading-relaxed text-muted sm:max-w-[400px] sm:text-sm md:text-base">
+                {data.description}
+              </p>
             </div>
 
-            <h1 className="mb-4 text-4xl font-semibold leading-none tracking-tight text-text">
-              {line1}
-              {line2 && (
-                <>
-                  <br />
-                  {line2}
-                </>
-              )}
-            </h1>
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-accent sm:h-2.5 sm:w-2.5" />
+                <span className="font-mono text-xs text-accent sm:text-sm">
+                  {data.prediction.probability}%
+                </span>
+                <span className="text-xs text-muted sm:text-sm">
+                  {data.prediction.outcome}
+                </span>
+              </div>
 
-            <p className="max-w-[400px] text-base leading-relaxed text-muted">
-              {data.description}
-            </p>
-          </div>
-
-          <div className="flex items-end justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-              <span className="font-mono text-sm text-accent">
-                {data.prediction.probability}%
-              </span>
-              <span className="text-sm text-muted">
-                {data.prediction.outcome}
-              </span>
-            </div>
-
-            <div className="text-sm font-semibold text-muted-dark">
-              lovebomb.works
+              <div className="text-xs font-semibold text-muted-dark sm:text-sm">
+                lovebomb.works
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-3">
+      {/* Action buttons - responsive layout */}
+      <div className="flex w-full max-w-[600px] flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3">
         <button
           onClick={handleDownloadPNG}
           disabled={isExporting}
-          className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text disabled:opacity-50"
+          className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text disabled:opacity-50 sm:flex-none sm:px-5"
         >
           {isExporting ? "Exporting..." : "Download PNG"}
         </button>
         <button
           onClick={handleShareTwitter}
-          className="rounded-lg border border-white/10 bg-white/[0.05] px-5 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text"
+          className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:flex-none sm:px-5"
         >
-          Share to Twitter
+          Share to 𝕏
         </button>
         <Link
           href="/"
-          className="rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-background transition-colors hover:bg-accent-hover"
+          className="min-h-[44px] w-full rounded-lg bg-accent px-4 py-3 text-center text-sm font-semibold text-background transition-colors hover:bg-accent-hover sm:w-auto sm:px-5"
         >
           Try lovebomb.works →
         </Link>
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 pb-safe">
         <Footer />
       </div>
     </div>

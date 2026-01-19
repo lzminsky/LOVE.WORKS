@@ -45,21 +45,21 @@ export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: Gate
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-text">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 pb-safe pt-safe text-text sm:p-6">
       <div className="w-full max-w-[420px] text-center">
         {/* Counter */}
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-2">
-          <div className="h-2 w-2 rounded-full bg-accent" />
-          <span className="text-sm font-medium text-accent">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1.5 sm:mb-8 sm:px-4 sm:py-2">
+          <div className="h-1.5 w-1.5 rounded-full bg-accent sm:h-2 sm:w-2" />
+          <span className="text-xs font-medium text-accent sm:text-sm">
             {promptCount} of {maxPrompts} messages used
           </span>
         </div>
 
-        <h1 className="mb-4 text-[28px] font-semibold tracking-tight text-text">
+        <h1 className="mb-3 text-2xl font-semibold tracking-tight text-text sm:mb-4 sm:text-[28px]">
           {COPY.gate.title}
         </h1>
 
-        <p className="mb-10 text-[15px] leading-[1.7] text-muted">
+        <p className="mb-6 text-sm leading-relaxed text-muted sm:mb-10 sm:text-[15px] sm:leading-[1.7]">
           {COPY.gate.description}
           <br />
           <span className="text-muted-dark">{COPY.gate.subtext}</span>
@@ -77,11 +77,11 @@ export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: Gate
         />
 
         {/* Demo controls */}
-        <div className="mt-8 border-t border-white/[0.06] pt-6">
+        <div className="mt-6 border-t border-white/[0.06] pt-4 sm:mt-8 sm:pt-6">
           <span className="mb-2 block text-[11px] text-muted-darker">
             Demo: Click to simulate states
           </span>
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
             {(
               [
                 "initial",
@@ -94,7 +94,7 @@ export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: Gate
               <button
                 key={state}
                 onClick={() => setVerifyState(state)}
-                className={`rounded border px-2.5 py-1.5 text-[11px] transition-colors ${
+                className={`min-h-[36px] rounded border px-2 py-1 text-[10px] transition-colors sm:min-h-0 sm:px-2.5 sm:py-1.5 sm:text-[11px] ${
                   verifyState === state
                     ? "border-accent/30 bg-accent/20 text-accent"
                     : "border-white/[0.08] bg-white/[0.03] text-muted-dark hover:text-muted"
@@ -108,7 +108,7 @@ export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: Gate
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 pb-safe">
         <Footer />
       </div>
     </div>
