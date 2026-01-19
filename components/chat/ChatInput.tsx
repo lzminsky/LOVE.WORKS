@@ -42,7 +42,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   const canSubmit = value.trim() && !isLoading && !disabled;
 
   return (
-    <div className="flex-shrink-0 border-t border-white/[0.06] bg-background/95 px-4 pb-safe pt-3 backdrop-blur-xl sm:px-6 sm:pt-4">
+    <div className="relative z-10 flex-shrink-0 border-t border-white/[0.06] bg-background/95 px-4 pb-safe pt-3 backdrop-blur-xl sm:px-6 sm:pt-4">
       <form
         onSubmit={handleSubmit}
         className="mx-auto flex max-w-[680px] items-end gap-2 sm:gap-3"
@@ -56,7 +56,11 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           rows={2}
           disabled={disabled}
           enterKeyHint="enter"
+          autoComplete="off"
+          autoCorrect="on"
+          spellCheck="true"
           className="flex-1 resize-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-3 text-base leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-white/[0.12] disabled:opacity-50 sm:rounded-[10px] sm:px-[18px] sm:py-3.5 sm:text-[15px]"
+          style={{ touchAction: "manipulation" }}
         />
         <button
           type="submit"

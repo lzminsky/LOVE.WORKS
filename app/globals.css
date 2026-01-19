@@ -144,3 +144,15 @@ p, span, div {
     overscroll-behavior-y: none;
   }
 }
+
+/* iOS Safari textarea fix - ensure textarea remains tappable */
+textarea {
+  -webkit-appearance: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Ensure scroll containers work properly on iOS */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+}

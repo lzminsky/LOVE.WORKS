@@ -87,9 +87,9 @@ export function ChatInterface({
   }, [clearError]);
 
   return (
-    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
+    <div className="flex h-[100dvh] min-h-0 flex-col bg-background">
       {/* Scrollable area containing Header + Messages */}
-      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+      <div className="relative z-0 min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
         <Header
           promptCount={promptCount}
           maxPrompts={maxPrompts}
