@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { Footer } from "@/components/ui/Footer";
 import { Analytics } from "@/lib/analytics";
 
@@ -151,7 +151,16 @@ export function ExportCard({
 }: ExportCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+
+  // Check if native sharing is available (iOS/Android)
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      setCanShare(true);
+    }
+  }, []);
 
   // Split name into lines for display
   const nameLines = equilibrium.name.split(" ");
@@ -262,17 +271,66 @@ ${conversationContent}
     Analytics.shareCompleted("download");
   }, [messages]);
 
+  const handleNativeShare = useCallback(async () => {
+    if (!cardRef.current) return;
+
+    setIsSharing(true);
+    try {
+      const { toPng } = await import("html-to-image");
+
+      const dataUrl = await toPng(cardRef.current, {
+        width: 1200,
+        height: 628,
+        pixelRatio: 2,
+        backgroundColor: "#0d0d0d",
+      });
+
+      // Convert data URL to blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `lovebomb-works-${equilibrium.id}.png`, { type: "image/png" });
+
+      const shareData = {
+        title: equilibrium.name,
+        text: `${equilibrium.name} — "${tagline || equilibrium.description}"`,
+        url: shareUrl,
+        files: [file],
+      };
+
+      // Check if we can share files, otherwise just share URL
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.share({
+          title: equilibrium.name,
+          text: `${equilibrium.name} — "${tagline || equilibrium.description}"`,
+          url: shareUrl,
+        });
+      }
+
+      Analytics.exportGenerated("native_share");
+      Analytics.shareCompleted("native_share");
+    } catch (err) {
+      // User cancelled or share failed
+      if ((err as Error).name !== "AbortError") {
+        console.error("Failed to share:", err);
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  }, [equilibrium, tagline, shareUrl]);
+
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background px-4 py-6 pb-20 pt-safe text-text sm:justify-center sm:p-6 sm:pb-20">
+    <div className="flex min-h-[100dvh] flex-col items-center overflow-y-auto bg-background px-4 py-6 pt-safe text-text sm:justify-center sm:p-6">
       <div className="mb-3 text-[11px] uppercase tracking-[0.1em] text-muted-dark sm:mb-6 sm:text-[13px]">
         Export Preview
       </div>
 
       {/* Card Preview - responsive scaling */}
-      <div className="mb-5 w-full max-w-[600px] overflow-hidden sm:mb-8">
+      <div className="mb-5 w-full max-w-[600px] flex-shrink-0 overflow-hidden sm:mb-8">
         <div
           ref={cardRef}
-          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-3 sm:rounded-xl sm:p-8 md:p-12"
+          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-4 sm:rounded-xl sm:p-8 md:p-12"
           style={{ transformOrigin: "center" }}
         >
           {/* Grid background */}
@@ -336,6 +394,22 @@ ${conversationContent}
 
       {/* Action buttons - responsive layout */}
       <div className="flex w-full max-w-[600px] flex-col items-center gap-2 sm:gap-3">
+        {/* Native Share button - prominent on mobile when available */}
+        {canShare && (
+          <button
+            onClick={handleNativeShare}
+            disabled={isSharing}
+            className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-[15px] font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:hidden"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+            {isSharing ? "Preparing..." : "Share"}
+          </button>
+        )}
+
         {/* Primary actions - stack on mobile */}
         <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           <button
@@ -351,9 +425,16 @@ ${conversationContent}
             Share to 𝕏
           </button>
           <button
+            onClick={canShare ? handleNativeShare : handleDownloadPNG}
+            disabled={isExporting || isSharing}
+            className="hidden min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:block sm:px-5 sm:py-3 sm:text-sm"
+          >
+            {isExporting || isSharing ? "Preparing..." : canShare ? "Share" : "Download PNG"}
+          </button>
+          <button
             onClick={handleDownloadPNG}
             disabled={isExporting}
-            className="col-span-2 min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:col-span-1 sm:px-5 sm:py-3 sm:text-sm"
+            className={`min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm ${canShare ? "col-span-2" : "col-span-2 !bg-accent !text-background hover:!bg-accent-hover font-semibold"}`}
           >
             {isExporting ? "Exporting..." : "Download PNG"}
           </button>
@@ -376,8 +457,8 @@ ${conversationContent}
         </div>
       </div>
 
-      {/* Footer - positioned at bottom but not absolute to avoid overlap */}
-      <div className="mt-auto w-full pt-6 sm:absolute sm:bottom-0 sm:left-0 sm:right-0 sm:mt-0 sm:pb-safe sm:pt-0">
+      {/* Footer */}
+      <div className="mt-6 w-full flex-shrink-0 pb-safe sm:mt-8">
         <Footer />
       </div>
     </div>
