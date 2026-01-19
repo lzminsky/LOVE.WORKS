@@ -5,8 +5,7 @@ import { UserMessage } from "./UserMessage";
 import { AIMessage } from "./AIMessage";
 import { TypingIndicator } from "./TypingIndicator";
 import { ErrorToast } from "@/components/ui/ErrorToast";
-import { COPY } from "@/lib/constants";
-import { ConversationPhase } from "@/hooks/useChat";
+import { ConversationPhase, ChatError } from "@/hooks/useChat";
 
 export interface Message {
   id: string;
@@ -35,12 +34,10 @@ export interface Message {
   };
 }
 
-type ErrorType = keyof typeof COPY.errors;
-
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
-  error: ErrorType | string | null;
+  error: ChatError | null;
   onDismissError: () => void;
   onRetry: () => void;
 }
@@ -81,7 +78,7 @@ export function MessageList({
 
       {/* Error Toast */}
       {error && (
-        <ErrorToast type={error} onDismiss={onDismissError} onRetry={onRetry} />
+        <ErrorToast error={error} onDismiss={onDismissError} onRetry={onRetry} />
       )}
 
       {/* Loading Indicator */}
