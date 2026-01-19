@@ -222,8 +222,7 @@ export async function checkUnlocked(sessionToken: string): Promise<boolean> {
     .eq("session_token", sessionToken)
     .single();
 
-  // Supabase returns joined relations as objects (single) or arrays (multiple)
-  // For a single foreign key relation, it's an object
-  const users = data?.users as { unlocked: boolean } | null;
+  // Supabase returns joined relations - cast through unknown to handle type inference
+  const users = data?.users as unknown as { unlocked: boolean } | null;
   return users?.unlocked || false;
 }
