@@ -1,5 +1,6 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
 import { EquilibriumCard } from "@/components/equilibrium/EquilibriumCard";
 import { FormalAnalysis } from "@/components/equilibrium/FormalAnalysis";
 import { ProbabilityLevel } from "@/components/equilibrium/ProbabilityRow";
@@ -102,9 +103,6 @@ export function AIMessage({
     .replace(/```analysis[\s\S]*$/g, "") // Incomplete analysis block
     .trim();
 
-  // Split content into paragraphs
-  const paragraphs = cleanContent.split("\n\n").filter(Boolean);
-
   // Determine if we have any formal analysis to show (only when not streaming)
   const hasStructuredAnalysis = formalAnalysis &&
     ((formalAnalysis.parameters && formalAnalysis.parameters.length > 0) ||
@@ -124,7 +122,7 @@ export function AIMessage({
   return (
     <div className="overflow-hidden rounded-xl bg-white/[0.02] p-4 sm:p-6">
       {/* Phase indicator for DIAGNOSIS */}
-      {phase === "DIAGNOSIS" && paragraphs.length === 0 && !showThinkingIndicator && (
+      {phase === "DIAGNOSIS" && !cleanContent && !showThinkingIndicator && (
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
           <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
           Full Analysis
@@ -132,7 +130,7 @@ export function AIMessage({
       )}
 
       {/* Thinking indicator while streaming */}
-      {showThinkingIndicator && paragraphs.length === 0 && (
+      {showThinkingIndicator && !cleanContent && (
         <div className="mb-4 flex items-center gap-2 text-xs text-neutral-500 sm:mb-6 sm:gap-3 sm:text-[13px]">
           <span className="font-mono text-accent">ƒ</span>
           <span>{loadingMessage}</span>
@@ -145,14 +143,21 @@ export function AIMessage({
       )}
 
       {/* Response text */}
-      {paragraphs.length > 0 && (
+      {cleanContent && (
         <div className={showEquilibriumCard || showFormalSection ? "mb-6 sm:mb-8" : ""}>
-          <div className="break-words text-sm leading-relaxed text-neutral-300 sm:text-[15px] sm:leading-[1.8]">
-            {paragraphs.map((paragraph, i) => (
-              <p key={i} className={i < paragraphs.length - 1 ? "mb-3 sm:mb-4" : ""}>
-                {paragraph}
-              </p>
-            ))}
+          <div className="prose prose-sm prose-invert max-w-none prose-p:text-neutral-300 prose-p:leading-relaxed prose-strong:text-white prose-em:text-neutral-300 prose-ol:text-neutral-300 prose-ul:text-neutral-300 prose-li:text-neutral-300 sm:prose-base">
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-3 sm:mb-4 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                em: ({ children }) => <em className="text-neutral-300">{children}</em>,
+                ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-3">{children}</ol>,
+                ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-3">{children}</ul>,
+                li: ({ children }) => <li className="text-neutral-200">{children}</li>,
+              }}
+            >
+              {cleanContent}
+            </ReactMarkdown>
           </div>
         </div>
       )}
