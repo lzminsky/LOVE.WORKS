@@ -23,18 +23,34 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lovebomb.works"),
-  title: "lovebomb.works",
-  description: "Get your relationship dynamics diagnosed by a formal economic model",
+  title: {
+    default: "lovebomb.works — Relationship Dynamics Analysis",
+    template: "%s | lovebomb.works",
+  },
+  description: "Get your relationship dynamics diagnosed by a formal economic model. The same frameworks used for pricing options and predicting markets — now pointed at your love life.",
+  keywords: ["relationships", "dating", "game theory", "economics", "analysis", "love", "dynamics"],
+  authors: [{ name: "bounded.works" }],
+  creator: "bounded.works",
   openGraph: {
-    title: "lovebomb.works",
+    title: "lovebomb.works — Relationship Dynamics Analysis",
     description: "The same models used for pricing options and predicting markets. Now pointed at your love life.",
     siteName: "lovebomb.works",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "lovebomb.works",
     description: "The same models used for pricing options and predicting markets. Now pointed at your love life.",
+    creator: "@lzminsky",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.svg",
   },
 };
 

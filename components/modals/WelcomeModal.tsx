@@ -9,8 +9,8 @@ interface WelcomeModalProps {
 
 export function WelcomeModal({ onClose, onAbout }: WelcomeModalProps) {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-lg sm:p-5">
-      <div className="w-full max-w-[420px] rounded-2xl border border-white/[0.08] bg-[#111111] px-6 py-8 text-center sm:px-12 sm:py-10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black/85 p-4 pb-safe pt-safe backdrop-blur-lg sm:p-5">
+      <div className="w-full max-w-[420px] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111111] px-5 py-7 text-center sm:px-12 sm:py-10">
         <div className="mb-3 text-xs font-medium uppercase tracking-[0.1em] text-muted-dark sm:mb-4 sm:text-[13px]">
           {COPY.welcomeModal.tagline}
         </div>

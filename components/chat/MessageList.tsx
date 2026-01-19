@@ -53,7 +53,7 @@ export function MessageList({
   onRetry,
 }: MessageListProps) {
   return (
-    <main className="mx-auto flex w-full max-w-[680px] flex-col gap-4 p-4 sm:gap-6 sm:p-6">
+    <main className="mx-auto flex w-full max-w-[680px] flex-col gap-4 overflow-x-hidden p-4 sm:gap-6 sm:p-6">
       {messages.map((message, index) => {
         if (message.role === "system") {
           return <SystemMessage key={message.id} />;

@@ -38,7 +38,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   const canSubmit = value.trim() && !isLoading && !disabled;
 
   return (
-    <div className="border-t border-white/[0.06] bg-background/95 px-4 pb-4 pb-safe pt-4 backdrop-blur-xl sm:px-6 sm:pb-6 sm:pt-5">
+    <div className="flex-shrink-0 border-t border-white/[0.06] bg-background/95 px-4 pb-safe pt-3 backdrop-blur-xl sm:px-6 sm:pt-4">
       <form
         onSubmit={handleSubmit}
         className="mx-auto flex max-w-[680px] items-end gap-2 sm:gap-3"

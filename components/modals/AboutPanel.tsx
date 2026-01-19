@@ -16,7 +16,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
       />
 
       {/* Panel - full width on mobile, slide-in on desktop */}
-      <div className="relative w-full animate-slide-in overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] px-5 py-6 pb-safe pt-safe sm:max-w-[580px] sm:px-10 sm:py-8">
+      <div className="relative h-full w-full animate-slide-in overflow-x-hidden overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] px-5 py-6 pb-safe pt-safe sm:max-w-[580px] sm:px-10 sm:py-8">
         {/* Close button */}
         <button
           onClick={onClose}
