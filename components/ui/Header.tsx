@@ -69,7 +69,7 @@ export function Header({
             onClick={onExportClick}
             className="min-h-[44px] rounded-md px-3 py-2 text-[13px] font-medium text-muted-dark transition-colors hover:text-muted"
           >
-            Export
+            Share
           </button>
           <button
             onClick={onNewClick}
@@ -129,7 +129,7 @@ export function Header({
             }}
             className="flex min-h-[48px] w-full items-center rounded-md px-3 text-sm font-medium text-muted transition-colors hover:text-text"
           >
-            Export
+            Share
           </button>
           <button
             onClick={() => {
