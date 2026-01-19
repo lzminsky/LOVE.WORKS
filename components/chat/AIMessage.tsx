@@ -3,6 +3,7 @@
 import { EquilibriumCard } from "@/components/equilibrium/EquilibriumCard";
 import { FormalAnalysis } from "@/components/equilibrium/FormalAnalysis";
 import { ProbabilityLevel } from "@/components/equilibrium/ProbabilityRow";
+import { ConversationPhase } from "@/hooks/useChat";
 
 interface Prediction {
   outcome: string;
@@ -30,48 +31,67 @@ interface FormalAnalysisData {
 
 interface AIMessageProps {
   content: string;
+  phase?: ConversationPhase;
   equilibrium?: Equilibrium;
   formalAnalysis?: FormalAnalysisData;
   animate?: boolean;
 }
 
-// Parse thinking block from content - handles both complete and incomplete blocks during streaming
-function parseThinkingBlock(content: string): {
+// Parse phase and thinking block from content - handles both complete and incomplete blocks during streaming
+function parseContent(content: string): {
   mainContent: string;
   thinkingContent: string | null;
   isStreaming: boolean;
 } {
+  // First, strip the phase tag (it's metadata, not display content)
+  let processedContent = content.replace(/<phase>(INTAKE|BUILDING|DIAGNOSIS)<\/phase>\s*/g, "");
+
   // Check for complete thinking block
-  const completeMatch = content.match(/<thinking>([\s\S]*?)<\/thinking>/);
+  const completeMatch = processedContent.match(/<thinking>([\s\S]*?)<\/thinking>/);
 
   if (completeMatch) {
     const thinkingContent = completeMatch[1].trim();
-    const mainContent = content.replace(/<thinking>[\s\S]*?<\/thinking>/, "").trim();
+    const mainContent = processedContent.replace(/<thinking>[\s\S]*?<\/thinking>/, "").trim();
     return { mainContent, thinkingContent, isStreaming: false };
   }
 
   // Check for incomplete thinking block (streaming in progress)
-  const incompleteMatch = content.match(/<thinking>([\s\S]*)$/);
+  const incompleteMatch = processedContent.match(/<thinking>([\s\S]*)$/);
 
   if (incompleteMatch) {
     // Thinking block started but not finished - hide it from main content
-    const mainContent = content.replace(/<thinking>[\s\S]*$/, "").trim();
+    const mainContent = processedContent.replace(/<thinking>[\s\S]*$/, "").trim();
     const thinkingContent = incompleteMatch[1].trim();
     return { mainContent, thinkingContent, isStreaming: true };
   }
 
   // No thinking block at all
-  return { mainContent: content, thinkingContent: null, isStreaming: false };
+  return { mainContent: processedContent, thinkingContent: null, isStreaming: false };
+}
+
+// Get phase-specific loading message
+function getPhaseLoadingMessage(phase?: ConversationPhase): string {
+  switch (phase) {
+    case "INTAKE":
+      return "Scanning patterns";
+    case "BUILDING":
+      return "Mapping dynamics";
+    case "DIAGNOSIS":
+      return "Running full analysis";
+    default:
+      return "Reasoning formally";
+  }
 }
 
 export function AIMessage({
   content,
+  phase,
   equilibrium,
   formalAnalysis,
   animate = true,
 }: AIMessageProps) {
-  // First extract thinking blocks
-  const { mainContent, thinkingContent, isStreaming } = parseThinkingBlock(content);
+  // First extract thinking blocks (also strips phase tags)
+  const { mainContent, thinkingContent, isStreaming } = parseContent(content);
 
   // Strip out the JSON blocks from displayed content
   // Also strip any incomplete JSON blocks during streaming
@@ -95,13 +115,27 @@ export function AIMessage({
   // Show thinking indicator while streaming formal analysis
   const showThinkingIndicator = isStreaming && thinkingContent && thinkingContent.length > 0;
 
+  // Only show equilibrium card in DIAGNOSIS phase
+  const showEquilibriumCard = equilibrium && phase === "DIAGNOSIS";
+
+  // Get phase-appropriate loading message
+  const loadingMessage = getPhaseLoadingMessage(phase);
+
   return (
     <div className="rounded-xl bg-white/[0.02] p-6">
+      {/* Phase indicator for DIAGNOSIS */}
+      {phase === "DIAGNOSIS" && paragraphs.length === 0 && !showThinkingIndicator && (
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+          Full Analysis
+        </div>
+      )}
+
       {/* Thinking indicator while streaming */}
       {showThinkingIndicator && paragraphs.length === 0 && (
         <div className="mb-6 flex items-center gap-3 text-[13px] text-neutral-500">
           <span className="font-mono text-accent">ƒ</span>
-          <span>Reasoning formally</span>
+          <span>{loadingMessage}</span>
           <span className="flex gap-1">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent/60" style={{ animationDelay: "0ms" }} />
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent/60" style={{ animationDelay: "150ms" }} />
@@ -112,7 +146,7 @@ export function AIMessage({
 
       {/* Response text */}
       {paragraphs.length > 0 && (
-        <div className={equilibrium || showFormalSection ? "mb-8" : ""}>
+        <div className={showEquilibriumCard || showFormalSection ? "mb-8" : ""}>
           <div className="text-[15px] leading-[1.8] text-neutral-300">
             {paragraphs.map((paragraph, i) => (
               <p key={i} className={i < paragraphs.length - 1 ? "mb-4" : ""}>
@@ -123,8 +157,8 @@ export function AIMessage({
         </div>
       )}
 
-      {/* Equilibrium Card */}
-      {equilibrium && (
+      {/* Equilibrium Card - ONLY in DIAGNOSIS phase */}
+      {showEquilibriumCard && (
         <div className="mb-6">
           <EquilibriumCard
             id={equilibrium.id}

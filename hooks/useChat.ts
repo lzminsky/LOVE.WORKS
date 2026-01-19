@@ -1,9 +1,12 @@
 import { useState, useCallback, useRef } from "react";
 
+export type ConversationPhase = "INTAKE" | "BUILDING" | "DIAGNOSIS";
+
 export interface Message {
   id: string;
   role: "system" | "user" | "assistant";
   content: string;
+  phase?: ConversationPhase;
   equilibrium?: Equilibrium;
   formalAnalysis?: FormalAnalysis;
 }
@@ -119,6 +122,13 @@ export function useChat(options: UseChatOptions = {}) {
         let accumulatedContent = "";
         let equilibrium: Equilibrium | undefined;
         let formalAnalysis: FormalAnalysis | undefined;
+        let phase: ConversationPhase | undefined;
+
+        // Helper to extract phase from content
+        const extractPhase = (content: string): ConversationPhase | undefined => {
+          const match = content.match(/<phase>(INTAKE|BUILDING|DIAGNOSIS)<\/phase>/);
+          return match ? (match[1] as ConversationPhase) : undefined;
+        };
 
         while (true) {
           const { done, value } = await reader.read();
@@ -134,10 +144,14 @@ export function useChat(options: UseChatOptions = {}) {
               switch (chunk.type) {
                 case "text":
                   accumulatedContent += chunk.content || "";
+                  // Extract phase if not yet found
+                  if (!phase) {
+                    phase = extractPhase(accumulatedContent);
+                  }
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
-                        ? { ...m, content: accumulatedContent }
+                        ? { ...m, content: accumulatedContent, phase }
                         : m
                     )
                   );

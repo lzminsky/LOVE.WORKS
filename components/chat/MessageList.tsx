@@ -6,11 +6,13 @@ import { AIMessage } from "./AIMessage";
 import { TypingIndicator } from "./TypingIndicator";
 import { ErrorToast } from "@/components/ui/ErrorToast";
 import { COPY } from "@/lib/constants";
+import { ConversationPhase } from "@/hooks/useChat";
 
 export interface Message {
   id: string;
   role: "user" | "assistant" | "system";
   content: string;
+  phase?: ConversationPhase;
   equilibrium?: {
     id: string;
     name: string;
@@ -66,6 +68,7 @@ export function MessageList({
             <AIMessage
               key={message.id}
               content={message.content}
+              phase={message.phase}
               equilibrium={message.equilibrium}
               formalAnalysis={message.formalAnalysis}
               animate={index === messages.length - 1}

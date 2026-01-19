@@ -5,7 +5,9 @@
       "Bash(/usr/local/bin/npm run build)",
       "Bash(/opt/homebrew/bin/npm run build)",
       "Bash(~/.npm-global/bin/npm run build)",
-      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")"
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.nvm/versions/node/*/bin:$PATH\")",
+      "Bash(npx tsc:*)"
     ]
   }
 }
