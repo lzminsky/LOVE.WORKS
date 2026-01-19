@@ -306,8 +306,8 @@ ${conversationContent}
         });
       }
 
-      Analytics.exportGenerated("native_share");
-      Analytics.shareCompleted("native_share");
+      Analytics.exportGenerated("png");
+      Analytics.shareCompleted("download");
     } catch (err) {
       // User cancelled or share failed
       if ((err as Error).name !== "AbortError") {
