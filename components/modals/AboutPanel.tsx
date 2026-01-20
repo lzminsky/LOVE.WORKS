@@ -50,7 +50,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
             {COPY.about.framework}
           </div>
           <a
-            href={LINKS.boundedWorks}
+            href={LINKS.modelPdf}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3.5 py-2 text-[12px] font-medium text-accent transition-colors hover:bg-accent/20 sm:min-h-0 sm:px-4 sm:py-2.5 sm:text-[13px]"

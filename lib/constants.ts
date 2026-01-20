@@ -61,6 +61,7 @@ export const EXTENSIONS = [
 // Links
 export const LINKS = {
   boundedWorks: "https://bounded.works",
+  modelPdf: "https://www.bounded.works/Commitment_Market_Dynamics_v2.pdf",
   twitter: "https://twitter.com/lzminsky",
   twitterHandle: "@lzminsky",
 } as const;
