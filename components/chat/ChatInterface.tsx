@@ -6,7 +6,7 @@ import { Footer } from "@/components/ui/Footer";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { useChat, Equilibrium, Message } from "@/hooks/useChat";
-import { COPY } from "@/lib/constants";
+import { COPY, CONFIG } from "@/lib/constants";
 import { Analytics } from "@/lib/analytics";
 
 interface ChatInterfaceProps {
@@ -112,7 +112,7 @@ export function ChatInterface({
       <ChatInput
         onSubmit={handleSubmit}
         isLoading={isLoading}
-        disabled={!isUnlocked && promptCount >= maxPrompts}
+        disabled={CONFIG.messageLimitEnabled && !isUnlocked && promptCount >= maxPrompts}
       />
 
       <Footer />
