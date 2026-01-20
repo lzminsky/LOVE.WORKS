@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user has hit the gate
-    if (!session.isUnlocked && session.promptCount >= CONFIG.maxFreeMessages) {
+    // Check if user has hit the gate (only if message limit is enabled)
+    if (CONFIG.messageLimitEnabled && !session.isUnlocked && session.promptCount >= CONFIG.maxFreeMessages) {
       return new Response(
         JSON.stringify({
           error: "gate_required",

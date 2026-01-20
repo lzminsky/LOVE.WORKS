@@ -69,6 +69,7 @@ export const LINKS = {
 // App config
 export const CONFIG = {
   maxFreeMessages: 10,
+  messageLimitEnabled: false, // Set to true to enable message gating
   appName: "lovebomb.works",
   parentOrg: "bounded.works",
 } as const;

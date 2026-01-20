@@ -31,9 +31,8 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Submit on Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux)
-    // Plain Enter adds a new line (better for mobile)
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+    // Submit on Enter, Shift+Enter adds a new line
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -55,7 +54,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           placeholder="Describe your situation..."
           rows={2}
           disabled={disabled}
-          enterKeyHint="enter"
+          enterKeyHint="send"
           autoComplete="off"
           autoCorrect="on"
           spellCheck="true"
