@@ -1,7 +1,5 @@
 "use client";
 
-import { COPY } from "@/lib/constants";
-
 const EXAMPLES = [
   "We've been dating for 8 months and he still says he's not ready for a relationship. He was hurt by his ex. I think he just needs more time.",
   "She moved in 6 months ago and now she's completely different. Cold, distant, picks fights over nothing.",
@@ -14,7 +12,7 @@ export function SystemMessage() {
       {/* Intro */}
       <div className="rounded-xl border-l-2 border-accent bg-white/[0.02] p-5 px-6">
         <p className="text-[15px] leading-[1.7] text-muted">
-          Think of me as that neurodivergent friend who clocks what's actually happening while everyone else is still making excuses. I'll be honest, but I actually give a shit.
+          Think of me as that neurodivergent friend who clocks what&apos;s actually happening while everyone else is still making excuses. I&apos;ll be honest, but I actually give a shit.
         </p>
       </div>
 
@@ -30,7 +28,7 @@ export function SystemMessage() {
               className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4"
             >
               <p className="text-sm italic leading-relaxed text-muted">
-                "{example}"
+                &ldquo;{example}&rdquo;
               </p>
             </div>
           ))}
@@ -40,7 +38,7 @@ export function SystemMessage() {
       {/* CTA */}
       <div className="rounded-xl border-l-2 border-accent/50 bg-white/[0.02] p-5 px-6">
         <p className="text-[15px] leading-[1.7] text-muted">
-          I'll ask a few questions to understand the full picture, then tell you what's actually happening and what's likely to happen next.
+          I&apos;ll ask a few questions to understand the full picture, then tell you what&apos;s actually happening and what&apos;s likely to happen next.
         </p>
       </div>
     </div>
