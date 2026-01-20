@@ -152,7 +152,6 @@ export function ExportCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
 
   // Check if native sharing is available (iOS/Android)
@@ -213,19 +212,6 @@ export function ExportCard({
       setIsExporting(false);
     }
   }, [equilibrium.id]);
-
-  const handleCopyLink = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2000);
-
-      Analytics.exportGenerated("link");
-      Analytics.shareCompleted("copy_link");
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  }, [shareUrl]);
 
   const [twitterImageCopied, setTwitterImageCopied] = useState(false);
 
@@ -450,48 +436,33 @@ ${conversationContent}
         {/* Primary actions - stack on mobile */}
         <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           <button
-            onClick={handleCopyLink}
-            className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
-          >
-            {linkCopied ? "✓ Copied!" : "Copy Link"}
-          </button>
-          <button
             onClick={handleShareTwitter}
             className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             {twitterImageCopied ? "Image copied — paste in 𝕏" : "Share to 𝕏"}
           </button>
           <button
-            onClick={canShare ? handleNativeShare : handleDownloadPNG}
-            disabled={isExporting || isSharing}
-            className="hidden min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover disabled:opacity-50 sm:block sm:px-5 sm:py-3 sm:text-sm"
-          >
-            {isExporting || isSharing ? "Preparing..." : canShare ? "Share" : "Download PNG"}
-          </button>
-          <button
             onClick={handleDownloadPNG}
             disabled={isExporting}
-            className={`min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm ${canShare ? "col-span-2" : "col-span-2 !bg-accent !text-background hover:!bg-accent-hover font-semibold"}`}
+            className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             {isExporting ? "Exporting..." : "Download PNG"}
           </button>
-        </div>
-
-        {/* Secondary actions */}
-        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
-          <button
-            onClick={onBack}
-            className="min-h-[44px] rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-[13px] text-muted transition-colors hover:border-white/20 hover:text-text sm:px-5 sm:py-3 sm:text-sm"
-          >
-            ← Back
-          </button>
           <button
             onClick={handleDownloadMarkdown}
-            className="min-h-[44px] rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-[13px] text-muted-dark transition-colors hover:border-white/20 hover:text-muted sm:px-5 sm:py-3 sm:text-sm"
+            className="col-span-2 min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover sm:col-span-1 sm:px-5 sm:py-3 sm:text-sm"
           >
-            Markdown
+            Save Conversation
           </button>
         </div>
+
+        {/* Back button */}
+        <button
+          onClick={onBack}
+          className="min-h-[44px] rounded-lg border border-white/10 bg-transparent px-5 py-2.5 text-[13px] text-muted transition-colors hover:border-white/20 hover:text-text sm:py-3 sm:text-sm"
+        >
+          ← Back
+        </button>
       </div>
 
       {/* Footer */}
