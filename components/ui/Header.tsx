@@ -32,8 +32,8 @@ export function Header({
       </a>
 
       <div className="flex items-center gap-2 sm:gap-4 md:gap-5">
-        {/* Prompt counter - shows remaining messages */}
-        {!isUnlocked && (
+        {/* Prompt counter - only show if message limit is enabled */}
+        {CONFIG.messageLimitEnabled && !isUnlocked && (
           <div className="flex items-center gap-1.5 rounded-md bg-white/[0.03] px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
             <div
               className={`h-1.5 w-1.5 rounded-full ${
@@ -47,7 +47,7 @@ export function Header({
           </div>
         )}
 
-        {isUnlocked && (
+        {CONFIG.messageLimitEnabled && isUnlocked && (
           <div className="flex items-center gap-1.5 rounded-md bg-accent/10 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
             <div className="h-1.5 w-1.5 rounded-full bg-accent" />
             <span className="text-xs text-accent sm:text-[13px]">

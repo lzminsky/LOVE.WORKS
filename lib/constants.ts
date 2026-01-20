@@ -6,8 +6,17 @@ export const COPY = {
     description: "The same models used for pricing options and predicting markets.",
     cta: "Now pointed at your love life.",
   },
-  onboarding:
-    "Describe a past relationship. Present tense. I'll tell you how it ended—and it'll help me learn more about you. Or, we can talk about anything you want.",
+  onboarding: `Think of me as that neurodivergent friend who clocks what's actually happening while everyone else is still making excuses. I'll be honest, but I actually give a shit.
+
+People come here with things like:
+
+"We've been dating for 8 months and he still says he's not ready for a relationship. He was hurt by his ex. I think he just needs more time."
+
+"She moved in 6 months ago and now she's completely different. Cold, distant, picks fights over nothing."
+
+"I found texts from his coworker. When I brought it up he said I was being insecure and controlling."
+
+I'll ask a few questions to understand the full picture, then tell you what's actually happening and what's likely to happen next.`,
   gate: {
     title: "You've hit your limit",
     description: "To unlock unlimited access, like and retweet this post.",
