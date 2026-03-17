@@ -122,25 +122,51 @@ function useLoadingMessage(intervalMs = 3500) {
   return shuffledMessages[messageIndex] || loadingMessages[0];
 }
 
+function usePerceivedQueue() {
+  const [count, setCount] = useState(() => Math.floor(Math.random() * 8) + 3);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount((prev) => {
+        const delta = Math.random() > 0.5 ? 1 : -1;
+        return Math.max(2, Math.min(14, prev + delta));
+      });
+    }, 4000 + Math.random() * 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return count;
+}
+
 export function TypingIndicator() {
   const message = useLoadingMessage(3500);
   const { displayedText, isTyping } = useTypingEffect(message, 35);
+  const queueCount = usePerceivedQueue();
 
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-white/[0.02] p-6">
-      {/* Pulsing ƒ symbol */}
-      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-accent/10 animate-pulse-glow">
-        <span className="font-mono text-xl font-semibold text-accent animate-pulse-opacity">
-          ƒ
-        </span>
+    <div className="flex flex-col gap-3 rounded-xl bg-[var(--overlay)] p-6">
+      <div className="flex items-center gap-4">
+        {/* Pulsing ƒ symbol */}
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-accent/10 animate-pulse-glow">
+          <span className="font-mono text-xl font-semibold text-accent animate-pulse-opacity">
+            ƒ
+          </span>
+        </div>
+
+        {/* Typing message */}
+        <div className="min-h-[20px] font-mono text-sm text-muted-dark">
+          {displayedText}
+          {isTyping && (
+            <span className="ml-0.5 inline-block h-3.5 w-0.5 animate-blink bg-accent align-middle" />
+          )}
+        </div>
       </div>
 
-      {/* Typing message */}
-      <div className="min-h-[20px] font-mono text-sm text-neutral-500">
-        {displayedText}
-        {isTyping && (
-          <span className="ml-0.5 inline-block h-3.5 w-0.5 animate-blink bg-accent align-middle" />
-        )}
+      {/* Perceived queue indicator */}
+      <div className="flex items-center gap-2 pl-[52px] text-[11px] text-muted-darker sm:text-xs">
+        <span className="h-1 w-1 rounded-full bg-accent/40" />
+        <span>{queueCount} others analyzing right now</span>
       </div>
     </div>
   );

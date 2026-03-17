@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CONFIG } from "@/lib/constants";
+import { useCounter } from "@/hooks/useCounter";
 
 interface HeaderProps {
   promptCount: number;
@@ -10,6 +11,7 @@ interface HeaderProps {
   onAboutClick: () => void;
   onExportClick: () => void;
   onNewClick: () => void;
+  onCatalogClick?: () => void;
 }
 
 export function Header({
@@ -19,11 +21,13 @@ export function Header({
   onAboutClick,
   onExportClick,
   onNewClick,
+  onCatalogClick,
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { count, isLoaded } = useCounter();
 
   return (
-    <header className="relative flex items-center justify-between border-b border-white/[0.06] bg-background px-4 py-3 pt-safe sm:px-6 md:px-8 md:py-4">
+    <header className="relative flex items-center justify-between border-b border-[var(--border)] bg-background px-4 py-3 pt-safe sm:px-6 md:px-8 md:py-4">
       <a href="/" className="flex items-center gap-2 sm:gap-2.5">
         <span className="font-mono text-lg text-accent sm:text-xl">ƒ</span>
         <span className="text-sm font-semibold tracking-tight text-text sm:text-[15px]">
@@ -32,9 +36,17 @@ export function Header({
       </a>
 
       <div className="flex items-center gap-2 sm:gap-4 md:gap-5">
+        {/* Diagnosed counter - desktop only */}
+        {isLoaded && count > 0 && (
+          <div className="hidden items-center gap-1.5 text-xs text-muted-dark sm:flex">
+            <span className="font-mono tabular-nums text-muted">{count.toLocaleString()}</span>
+            <span>diagnosed</span>
+          </div>
+        )}
+
         {/* Prompt counter - only show if message limit is enabled */}
         {CONFIG.messageLimitEnabled && !isUnlocked && (
-          <div className="flex items-center gap-1.5 rounded-md bg-white/[0.03] px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
+          <div className="flex items-center gap-1.5 rounded-md bg-[var(--overlay)] px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
             <div
               className={`h-1.5 w-1.5 rounded-full ${
                 maxPrompts - promptCount <= 3 ? "bg-warning" : "bg-success"
@@ -64,6 +76,12 @@ export function Header({
             className="min-h-[44px] rounded-md px-3 py-2 text-[13px] font-medium text-muted-dark transition-colors hover:text-muted"
           >
             About
+          </button>
+          <button
+            onClick={() => onCatalogClick?.()}
+            className="min-h-[44px] rounded-md px-3 py-2 text-[13px] font-medium text-muted-dark transition-colors hover:text-muted"
+          >
+            Catalog
           </button>
           <button
             onClick={onExportClick}
@@ -112,7 +130,7 @@ export function Header({
 
       {/* Mobile dropdown menu */}
       {menuOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 border-b border-white/[0.06] bg-background px-4 py-2 sm:hidden">
+        <div className="absolute left-0 right-0 top-full z-50 border-b border-[var(--border)] bg-background px-4 py-2 sm:hidden">
           <button
             onClick={() => {
               onAboutClick();
@@ -121,6 +139,15 @@ export function Header({
             className="flex min-h-[48px] w-full items-center rounded-md px-3 text-sm font-medium text-muted transition-colors hover:text-text"
           >
             About
+          </button>
+          <button
+            onClick={() => {
+              onCatalogClick?.();
+              setMenuOpen(false);
+            }}
+            className="flex min-h-[48px] w-full items-center rounded-md px-3 text-sm font-medium text-muted transition-colors hover:text-text"
+          >
+            Catalog
           </button>
           <button
             onClick={() => {

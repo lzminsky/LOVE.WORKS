@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { Footer } from "@/components/ui/Footer";
+import { useSkin } from "@/lib/skin-context";
+import { DISCLAIMER } from "@/lib/constants";
 import Link from "next/link";
 
 interface ShareData {
@@ -23,6 +25,8 @@ interface ShareCardClientProps {
 export function ShareCardClient({ data }: ShareCardClientProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const { skin } = useSkin();
+  const exportBg = skin === "soft" ? "#faf8f5" : "#0d0d0d";
 
   // Handle missing data
   if (!data) {
@@ -62,7 +66,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
         width: 1200,
         height: 628,
         pixelRatio: 2,
-        backgroundColor: "#0d0d0d",
+        backgroundColor: exportBg,
       });
 
       const link = document.createElement("a");
@@ -92,7 +96,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
       <div className="mb-6 w-full max-w-[600px] overflow-hidden sm:mb-8">
         <div
           ref={cardRef}
-          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-4 sm:rounded-xl sm:p-8 md:p-12"
+          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--modal-bg)] p-4 sm:rounded-xl sm:p-8 md:p-12"
           style={{ transformOrigin: "center" }}
         >
           {/* Grid background */}
@@ -100,8 +104,8 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
             className="pointer-events-none absolute inset-0 opacity-50"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px)
               `,
               backgroundSize: "32px 32px",
             }}
@@ -110,7 +114,7 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
           <div className="relative z-10 flex h-full flex-col justify-between">
             <div>
               <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:mb-5 sm:gap-2">
-                <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono text-[9px] text-muted-dark sm:px-2 sm:py-1 sm:text-[11px]">
+                <span className="rounded bg-[var(--overlay-hover)] px-1.5 py-0.5 font-mono text-[9px] text-muted-dark sm:px-2 sm:py-1 sm:text-[11px]">
                   {data.id}
                 </span>
                 <span className="text-[9px] font-medium text-accent sm:text-[11px]">
@@ -144,8 +148,13 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
                 </span>
               </div>
 
-              <div className="text-xs font-semibold text-muted-dark sm:text-sm">
-                lovebomb.works
+              <div className="flex flex-col items-end gap-0.5">
+                <div className="text-xs font-semibold text-muted-dark sm:text-sm">
+                  lovebomb.works
+                </div>
+                <div className="text-[7px] text-muted-darker sm:text-[9px]">
+                  {DISCLAIMER}
+                </div>
               </div>
             </div>
           </div>
@@ -157,13 +166,13 @@ export function ShareCardClient({ data }: ShareCardClientProps) {
         <button
           onClick={handleDownloadPNG}
           disabled={isExporting}
-          className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text disabled:opacity-50 sm:flex-none sm:px-5"
+          className="min-h-[44px] flex-1 rounded-lg border border-[var(--border)] bg-[var(--overlay-hover)] px-4 py-3 text-sm text-muted transition-colors hover:bg-[var(--overlay)] hover:text-text disabled:opacity-50 sm:flex-none sm:px-5"
         >
           {isExporting ? "Exporting..." : "Download PNG"}
         </button>
         <button
           onClick={handleShareTwitter}
-          className="min-h-[44px] flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:flex-none sm:px-5"
+          className="min-h-[44px] flex-1 rounded-lg border border-[var(--border)] bg-[var(--overlay-hover)] px-4 py-3 text-sm text-muted transition-colors hover:bg-[var(--overlay)] hover:text-text sm:flex-none sm:px-5"
         >
           Share to 𝕏
         </button>

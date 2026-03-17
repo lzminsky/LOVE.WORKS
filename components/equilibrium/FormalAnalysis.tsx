@@ -2,19 +2,7 @@
 
 import { useState } from "react";
 import { ThinkingBlock } from "./ThinkingBlock";
-
-interface Parameter {
-  param: string;
-  value: string;
-  basis: string;
-}
-
-interface Extension {
-  id: string;
-  name: string;
-  status: "ACTIVE" | "LIKELY" | "POSSIBLE";
-  detail: string;
-}
+import type { Parameter, Extension } from "@/lib/types";
 
 interface FormalAnalysisProps {
   parameters?: Parameter[];
@@ -38,7 +26,7 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
       {/* Toggle button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="group flex items-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] text-muted transition-all hover:border-accent/30 hover:bg-accent/5 hover:text-text"
+        className="group flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--overlay)] px-4 py-2.5 text-[13px] text-muted transition-all hover:border-accent/30 hover:bg-accent/5 hover:text-text"
       >
         <span className="font-mono text-base text-accent transition-transform group-hover:scale-110">ƒ</span>
         <span className="font-medium">Reasoned formally</span>
@@ -63,7 +51,7 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
 
           {/* If we have structured data (from JSON blocks), show that too */}
           {hasStructuredData && (
-            <div className="mt-4 rounded-lg border border-white/[0.06] bg-black/40 p-4 font-mono text-xs leading-relaxed sm:mt-5 sm:rounded-[10px] sm:p-6 sm:text-[13px] sm:leading-[1.7]">
+            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-4 font-mono text-xs leading-relaxed sm:mt-5 sm:rounded-[10px] sm:p-6 sm:text-[13px] sm:leading-[1.7]">
               {/* Parameters */}
               {parameters && parameters.length > 0 && (
                 <div className="mb-4 sm:mb-6">
@@ -74,7 +62,7 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
                     {parameters.map((row, i) => (
                       <div
                         key={i}
-                        className="flex flex-col gap-1 rounded-md bg-white/[0.02] px-3 py-2 sm:grid sm:grid-cols-[160px_140px_1fr] sm:gap-4 sm:px-3.5 sm:py-2.5"
+                        className="flex flex-col gap-1 rounded-md bg-[var(--overlay)] px-3 py-2 sm:grid sm:grid-cols-[160px_140px_1fr] sm:gap-4 sm:px-3.5 sm:py-2.5"
                       >
                         <span className="flex-shrink-0 truncate text-accent">{row.param}</span>
                         <span className="text-muted">{row.value}</span>
@@ -95,7 +83,7 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
                     {extensions.map((ext, i) => (
                       <div
                         key={i}
-                        className={`rounded-lg border-l-2 bg-white/[0.02] p-3 sm:p-3.5 sm:px-4 ${
+                        className={`rounded-lg border-l-2 bg-[var(--overlay)] p-3 sm:p-3.5 sm:px-4 ${
                           ext.status === "ACTIVE" ? "border-accent" : "border-muted-dark"
                         }`}
                       >
@@ -106,7 +94,7 @@ export function FormalAnalysis({ parameters, extensions, rawThinking }: FormalAn
                             className={`rounded px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.05em] sm:px-2 sm:text-[10px] ${
                               ext.status === "ACTIVE"
                                 ? "bg-accent/15 text-accent"
-                                : "bg-white/[0.05] text-muted-dark"
+                                : "bg-[var(--overlay-hover)] text-muted-dark"
                             }`}
                           >
                             {ext.status}

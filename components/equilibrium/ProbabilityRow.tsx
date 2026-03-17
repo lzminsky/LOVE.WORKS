@@ -30,9 +30,9 @@ const levelColors: Record<ProbabilityLevel, { dot: string; text: string; value: 
     value: "text-muted-dark",
   },
   minimal: {
-    dot: "bg-neutral-700",
+    dot: "bg-muted-darker",
     text: "text-muted",
-    value: "text-neutral-700",
+    value: "text-muted-darker",
   },
 };
 

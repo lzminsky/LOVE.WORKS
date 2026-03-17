@@ -77,7 +77,7 @@ export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: Gate
         />
 
         {/* Demo controls */}
-        <div className="mt-6 border-t border-white/[0.06] pt-4 sm:mt-8 sm:pt-6">
+        <div className="mt-6 border-t border-[var(--border)] pt-4 sm:mt-8 sm:pt-6">
           <span className="mb-2 block text-[11px] text-muted-darker">
             Demo: Click to simulate states
           </span>
@@ -97,7 +97,7 @@ export function GateScreen({ onUnlock, promptCount = 10, maxPrompts = 10 }: Gate
                 className={`min-h-[36px] rounded border px-2 py-1 text-[10px] transition-colors sm:min-h-0 sm:px-2.5 sm:py-1.5 sm:text-[11px] ${
                   verifyState === state
                     ? "border-accent/30 bg-accent/20 text-accent"
-                    : "border-white/[0.08] bg-white/[0.03] text-muted-dark hover:text-muted"
+                    : "border-[var(--border)] bg-[var(--overlay)] text-muted-dark hover:text-muted"
                 }`}
               >
                 {state}

@@ -9,7 +9,9 @@
       "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$HOME/.nvm/versions/node/*/bin:$PATH\")",
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(grep:*)",
+      "Bash(echo \"PATH: $PATH\")"
     ]
   }
 }

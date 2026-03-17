@@ -1,3 +1,6 @@
+// Disclaimer
+export const DISCLAIMER = "For entertainment and self-reflection. Not professional advice. Not a substitute for therapy." as const;
+
 // Copy constants
 export const COPY = {
   welcomeModal: {

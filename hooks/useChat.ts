@@ -1,42 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Analytics } from "@/lib/analytics";
 
-export type ConversationPhase = "INTAKE" | "BUILDING" | "DIAGNOSIS";
-
-export interface Message {
-  id: string;
-  role: "system" | "user" | "assistant";
-  content: string;
-  phase?: ConversationPhase;
-  equilibrium?: Equilibrium;
-  formalAnalysis?: FormalAnalysis;
-}
-
-export interface Equilibrium {
-  id: string;
-  name: string;
-  description: string;
-  confidence: number;
-  predictions: {
-    outcome: string;
-    probability: number;
-    level: "high" | "medium" | "low" | "minimal";
-  }[];
-}
-
-export interface FormalAnalysis {
-  parameters: {
-    param: string;
-    value: string;
-    basis: string;
-  }[];
-  extensions: {
-    id: string;
-    name: string;
-    status: "ACTIVE" | "LIKELY" | "POSSIBLE";
-    detail: string;
-  }[];
-}
+export type { ConversationPhase, Message, Equilibrium, FormalAnalysis } from "@/lib/types";
+import type { ConversationPhase, Message, Equilibrium, FormalAnalysis } from "@/lib/types";
 
 interface StreamChunk {
   type: "text" | "equilibrium" | "analysis" | "done";

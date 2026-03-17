@@ -41,7 +41,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
   const canSubmit = value.trim() && !isLoading && !disabled;
 
   return (
-    <div className="relative z-10 flex-shrink-0 border-t border-white/[0.06] bg-background/95 px-4 pb-safe pt-3 backdrop-blur-xl sm:px-6 sm:pt-4">
+    <div className="relative z-10 flex-shrink-0 border-t border-[var(--border)] bg-background/95 px-4 pb-safe pt-3 backdrop-blur-xl sm:px-6 sm:pt-4">
       <form
         onSubmit={handleSubmit}
         className="mx-auto flex max-w-[680px] items-end gap-2 sm:gap-3"
@@ -58,7 +58,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           autoComplete="off"
           autoCorrect="on"
           spellCheck="true"
-          className="flex-1 resize-none rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-3 text-base leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-white/[0.12] disabled:opacity-50 sm:rounded-[10px] sm:px-[18px] sm:py-3.5 sm:text-[15px]"
+          className="flex-1 resize-none rounded-lg border border-[var(--border)] bg-[var(--overlay)] px-3 py-3 text-base leading-relaxed text-text outline-none placeholder:text-muted-dark focus:border-accent/30 disabled:opacity-50 sm:rounded-[10px] sm:px-[18px] sm:py-3.5 sm:text-[15px]"
           style={{ touchAction: "manipulation" }}
         />
         <button
@@ -68,7 +68,7 @@ export function ChatInput({ onSubmit, isLoading, disabled }: ChatInputProps) {
           className={`flex min-h-[48px] min-w-[48px] items-center justify-center rounded-lg transition-colors sm:min-h-0 sm:min-w-0 sm:rounded-[10px] sm:p-3.5 ${
             canSubmit
               ? "bg-accent text-background hover:bg-accent-hover"
-              : "bg-white/[0.05] text-muted-dark"
+              : "bg-[var(--overlay-hover)] text-muted-dark"
           }`}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="sm:h-[18px] sm:w-[18px]">

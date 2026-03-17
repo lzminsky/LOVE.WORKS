@@ -1,5 +1,5 @@
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import { getRedis } from "@/lib/redis";
 
 // Rate limit configurations from PRD
 const RATE_LIMITS = {
@@ -20,26 +20,13 @@ const RATE_LIMITS = {
   },
 };
 
-// Create Redis client (returns null if not configured)
-function createRedisClient(): Redis | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-  if (!url || !token) {
-    console.warn("Upstash Redis not configured - rate limiting disabled");
-    return null;
-  }
-
-  return new Redis({ url, token });
-}
-
 // Rate limiters (lazily initialized)
 let anonymousLimiter: Ratelimit | null = null;
 let authenticatedLimiter: Ratelimit | null = null;
 let hourlyLimiter: Ratelimit | null = null;
 
 function getAnonymousLimiter(): Ratelimit | null {
-  const redis = createRedisClient();
+  const redis = getRedis();
   if (!redis) return null;
 
   if (!anonymousLimiter) {
@@ -56,7 +43,7 @@ function getAnonymousLimiter(): Ratelimit | null {
 }
 
 function getAuthenticatedLimiter(): Ratelimit | null {
-  const redis = createRedisClient();
+  const redis = getRedis();
   if (!redis) return null;
 
   if (!authenticatedLimiter) {
@@ -73,7 +60,7 @@ function getAuthenticatedLimiter(): Ratelimit | null {
 }
 
 function getHourlyLimiter(): Ratelimit | null {
-  const redis = createRedisClient();
+  const redis = getRedis();
   if (!redis) return null;
 
   if (!hourlyLimiter) {

@@ -1,40 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { EquilibriumCard } from "@/components/equilibrium/EquilibriumCard";
-import { FormalAnalysis } from "@/components/equilibrium/FormalAnalysis";
-import { ProbabilityLevel } from "@/components/equilibrium/ProbabilityRow";
-import { ConversationPhase } from "@/hooks/useChat";
-
-interface Prediction {
-  outcome: string;
-  probability: number;
-  level: ProbabilityLevel;
-}
-
-interface Equilibrium {
-  id: string;
-  name: string;
-  description: string;
-  confidence: number;
-  predictions: Prediction[];
-}
-
-interface FormalAnalysisData {
-  parameters: Array<{ param: string; value: string; basis: string }>;
-  extensions: Array<{
-    id: string;
-    name: string;
-    status: "ACTIVE" | "LIKELY" | "POSSIBLE";
-    detail: string;
-  }>;
-}
+import { FormalAnalysis as FormalAnalysisComponent } from "@/components/equilibrium/FormalAnalysis";
+import { DiagnosisReveal } from "@/components/chat/DiagnosisReveal";
+import { playRevealTone } from "@/lib/audio";
+import { detectSafetyResponse } from "@/lib/safety";
+import { SafetyMessage } from "@/components/chat/SafetyMessage";
+import type { ConversationPhase, Equilibrium, FormalAnalysis } from "@/lib/types";
 
 interface AIMessageProps {
   content: string;
   phase?: ConversationPhase;
   equilibrium?: Equilibrium;
-  formalAnalysis?: FormalAnalysisData;
+  formalAnalysis?: FormalAnalysis;
   animate?: boolean;
 }
 
@@ -91,6 +71,14 @@ export function AIMessage({
   formalAnalysis,
   animate = true,
 }: AIMessageProps) {
+  const [revealed, setRevealed] = useState(false);
+
+  // Check for safety-flagged response before any other processing
+  const safetyContent = detectSafetyResponse(content);
+  if (safetyContent) {
+    return <SafetyMessage content={safetyContent} />;
+  }
+
   // First extract thinking blocks (also strips phase tags)
   const { mainContent, thinkingContent, isStreaming } = parseContent(content);
 
@@ -116,11 +104,19 @@ export function AIMessage({
   // Only show equilibrium card in DIAGNOSIS phase
   const showEquilibriumCard = equilibrium && phase === "DIAGNOSIS";
 
+  // Blind reveal: if there's an equilibrium card but not yet revealed (and not streaming)
+  const needsReveal = showEquilibriumCard && !revealed && !isStreaming;
+
   // Get phase-appropriate loading message
   const loadingMessage = getPhaseLoadingMessage(phase);
 
+  const handleReveal = () => {
+    playRevealTone();
+    setRevealed(true);
+  };
+
   return (
-    <div className="overflow-hidden rounded-xl bg-white/[0.02] p-4 sm:p-6">
+    <div className="overflow-hidden rounded-xl bg-[var(--overlay)] p-4 sm:p-6">
       {/* Phase indicator for DIAGNOSIS */}
       {phase === "DIAGNOSIS" && !cleanContent && !showThinkingIndicator && (
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
@@ -131,7 +127,7 @@ export function AIMessage({
 
       {/* Thinking indicator while streaming */}
       {showThinkingIndicator && !cleanContent && (
-        <div className="mb-4 flex items-center gap-2 text-xs text-neutral-500 sm:mb-6 sm:gap-3 sm:text-[13px]">
+        <div className="mb-4 flex items-center gap-2 text-xs text-muted-dark sm:mb-6 sm:gap-3 sm:text-[13px]">
           <span className="font-mono text-accent">ƒ</span>
           <span>{loadingMessage}</span>
           <span className="flex gap-1">
@@ -145,15 +141,15 @@ export function AIMessage({
       {/* Response text */}
       {cleanContent && (
         <div className={showEquilibriumCard || showFormalSection ? "mb-6 sm:mb-8" : ""}>
-          <div className="prose prose-sm prose-invert max-w-none prose-p:text-neutral-300 prose-p:leading-relaxed prose-strong:text-white prose-em:text-neutral-300 prose-ol:text-neutral-300 prose-ul:text-neutral-300 prose-li:text-neutral-300 sm:prose-base">
+          <div className="prose prose-sm prose-neutral max-w-none prose-p:text-muted prose-p:leading-relaxed prose-strong:text-text prose-em:text-muted prose-ol:text-muted prose-ul:text-muted prose-li:text-muted sm:prose-base">
             <ReactMarkdown
               components={{
                 p: ({ children }) => <p className="mb-3 sm:mb-4 last:mb-0">{children}</p>,
-                strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-                em: ({ children }) => <em className="text-neutral-300">{children}</em>,
+                strong: ({ children }) => <strong className="font-semibold text-text">{children}</strong>,
+                em: ({ children }) => <em className="text-muted">{children}</em>,
                 ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-3">{children}</ol>,
                 ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-3">{children}</ul>,
-                li: ({ children }) => <li className="text-neutral-200">{children}</li>,
+                li: ({ children }) => <li className="text-text">{children}</li>,
               }}
             >
               {cleanContent}
@@ -162,9 +158,21 @@ export function AIMessage({
         </div>
       )}
 
-      {/* Equilibrium Card - ONLY in DIAGNOSIS phase */}
-      {showEquilibriumCard && (
+      {/* Blind Reveal prompt — shown when diagnosis ready but not yet revealed */}
+      {needsReveal && (
         <div className="mb-4 sm:mb-6">
+          <DiagnosisReveal onReveal={handleReveal} />
+        </div>
+      )}
+
+      {/* Equilibrium Card - ONLY in DIAGNOSIS phase, after reveal */}
+      {showEquilibriumCard && (revealed || isStreaming) && (
+        <div
+          className="mb-4 sm:mb-6"
+          style={{
+            animation: revealed && !isStreaming ? "revealCard 200ms ease-out forwards" : undefined,
+          }}
+        >
           <EquilibriumCard
             id={equilibrium.id}
             name={equilibrium.name}
@@ -176,9 +184,9 @@ export function AIMessage({
         </div>
       )}
 
-      {/* Formal Analysis Toggle - shows structured data and/or raw thinking */}
-      {showFormalSection && (
-        <FormalAnalysis
+      {/* Formal Analysis Toggle - shows structured data and/or raw thinking, only after reveal */}
+      {showFormalSection && (!showEquilibriumCard || revealed) && (
+        <FormalAnalysisComponent
           parameters={formalAnalysis?.parameters}
           extensions={formalAnalysis?.extensions}
           rawThinking={thinkingContent || undefined}

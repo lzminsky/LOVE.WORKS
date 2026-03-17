@@ -26,13 +26,13 @@ export function EquilibriumCard({
   animate = true,
 }: EquilibriumCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black/40 p-4 sm:rounded-2xl sm:p-8">
+    <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 sm:rounded-2xl sm:p-8">
       {/* Top accent line */}
       <div className="absolute left-0 right-0 top-0 h-0.5 bg-gradient-to-r from-accent to-accent/20" />
 
       {/* Header */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-5">
-        <span className="rounded bg-white/[0.05] px-2 py-0.5 font-mono text-[10px] text-muted-dark sm:px-2.5 sm:py-1 sm:text-xs">
+        <span className="rounded bg-[var(--overlay-hover)] px-2 py-0.5 font-mono text-[10px] text-muted-dark sm:px-2.5 sm:py-1 sm:text-xs">
           {id}
         </span>
         <div className="flex items-center gap-1 sm:gap-1.5">
@@ -44,7 +44,7 @@ export function EquilibriumCard({
       </div>
 
       {/* Title */}
-      <h2 className="mb-1.5 text-xl font-bold leading-tight tracking-tight text-white sm:mb-2 sm:text-[32px]">
+      <h2 className="mb-1.5 text-xl font-bold leading-tight tracking-tight text-text sm:mb-2 sm:text-[32px]">
         {name}
       </h2>
       <p className="mb-4 text-xs text-muted sm:mb-7 sm:text-sm">{description}</p>

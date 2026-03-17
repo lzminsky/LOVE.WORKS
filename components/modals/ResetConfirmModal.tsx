@@ -13,7 +13,7 @@ export function ResetConfirmModal({
 }: ResetConfirmModalProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-5 backdrop-blur-lg">
-      <div className="w-full max-w-[400px] rounded-2xl border border-white/[0.08] bg-[#111111] p-8">
+      <div className="w-full max-w-[400px] rounded-2xl border border-[var(--border)] bg-[var(--modal-bg)] p-8">
         <h3 className="mb-3 text-lg font-semibold text-text">
           Start new conversation?
         </h3>
@@ -31,7 +31,7 @@ export function ResetConfirmModal({
           </button>
           <button
             onClick={onResetWithoutExport}
-            className="rounded-lg border border-white/10 bg-transparent px-4 py-3 text-sm font-medium text-muted transition-colors hover:border-white/20 hover:text-text"
+            className="rounded-lg border border-[var(--border)] bg-transparent px-4 py-3 text-sm font-medium text-muted transition-colors hover:border-accent/30 hover:text-text"
           >
             Start New Without Exporting
           </button>

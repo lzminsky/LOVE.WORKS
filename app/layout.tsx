@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
+import { SkinProvider } from "@/lib/skin-context";
 import "./globals.css";
 
 const inter = Inter({
@@ -63,7 +64,9 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased">
         <Suspense fallback={null}>
-          <AnalyticsProvider>{children}</AnalyticsProvider>
+          <SkinProvider>
+            <AnalyticsProvider>{children}</AnalyticsProvider>
+          </SkinProvider>
         </Suspense>
       </body>
     </html>

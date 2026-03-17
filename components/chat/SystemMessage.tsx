@@ -10,7 +10,7 @@ export function SystemMessage() {
   return (
     <div className="space-y-5">
       {/* Intro */}
-      <div className="rounded-xl border-l-2 border-accent bg-white/[0.02] p-5 px-6">
+      <div className="rounded-xl border-l-2 border-accent bg-[var(--overlay)] p-5 px-6">
         <p className="text-[15px] leading-[1.7] text-muted">
           Think of me as that neurodivergent friend who clocks what&apos;s actually happening while everyone else is still making excuses. I&apos;ll be honest, but I actually give a shit.
         </p>
@@ -25,7 +25,7 @@ export function SystemMessage() {
           {EXAMPLES.map((example, i) => (
             <div
               key={i}
-              className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4"
+              className="rounded-lg border border-[var(--border)] bg-[var(--overlay)] p-4"
             >
               <p className="text-sm italic leading-relaxed text-muted">
                 &ldquo;{example}&rdquo;
@@ -36,7 +36,7 @@ export function SystemMessage() {
       </div>
 
       {/* CTA */}
-      <div className="rounded-xl border-l-2 border-accent/50 bg-white/[0.02] p-5 px-6">
+      <div className="rounded-xl border-l-2 border-accent/50 bg-[var(--overlay)] p-5 px-6">
         <p className="text-[15px] leading-[1.7] text-muted">
           I&apos;ll ask a few questions to understand the full picture, then tell you what&apos;s actually happening and what&apos;s likely to happen next.
         </p>

@@ -5,16 +5,48 @@
 :root {
   --background: #0a0a0a;
   --surface: #1a1a1a;
+  --surface-hover: #252525;
   --text: #e5e5e5;
   --muted: #737373;
+  --muted-dark: #525252;
+  --muted-darker: #3f3f3f;
   --accent: #d4a574;
+  --accent-hover: #e0b385;
   --error: #ef4444;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --border: rgba(255, 255, 255, 0.06);
+  --overlay: rgba(255, 255, 255, 0.02);
+  --overlay-hover: rgba(255, 255, 255, 0.05);
+  --card-bg: rgba(0, 0, 0, 0.4);
+  --modal-bg: #111111;
 
   /* Safe area insets for notched devices */
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+/* Soft mode overrides */
+[data-skin="soft"] {
+  --background: #faf8f5;
+  --surface: #ffffff;
+  --surface-hover: #f0ede8;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --muted-dark: #8a8a8a;
+  --muted-darker: #a3a3a3;
+  --accent: #c4956a;
+  --accent-hover: #b38259;
+  --error: #dc2626;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --border: rgba(0, 0, 0, 0.08);
+  --overlay: rgba(0, 0, 0, 0.02);
+  --overlay-hover: rgba(0, 0, 0, 0.05);
+  --card-bg: rgba(0, 0, 0, 0.03);
+  --modal-bg: #ffffff;
 }
 
 * {
@@ -30,6 +62,7 @@ body {
   overflow-x: hidden;
   background-color: var(--background);
   color: var(--text);
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Ensure root element fills viewport properly on iOS */
@@ -72,6 +105,14 @@ a {
   background: #444;
 }
 
+[data-skin="soft"] ::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
+[data-skin="soft"] ::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
 /* Focus styles */
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -91,6 +132,18 @@ button {
 
 button:disabled {
   cursor: default;
+}
+
+/* Reveal card animation */
+@keyframes revealCard {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Animation utilities */

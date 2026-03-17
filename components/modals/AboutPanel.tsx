@@ -1,6 +1,6 @@
 "use client";
 
-import { COPY, EXTENSIONS, LINKS } from "@/lib/constants";
+import { COPY, EXTENSIONS, LINKS, DISCLAIMER } from "@/lib/constants";
 
 interface AboutPanelProps {
   onClose: () => void;
@@ -16,7 +16,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
       />
 
       {/* Panel - full width on mobile, slide-in on desktop */}
-      <div className="relative h-full w-full animate-slide-in overflow-x-hidden overflow-y-auto border-l border-white/[0.06] bg-[#0d0d0d] px-4 py-5 pb-safe pt-safe sm:max-w-[580px] sm:px-10 sm:py-8">
+      <div className="relative h-full w-full animate-slide-in overflow-x-hidden overflow-y-auto border-l border-[var(--border)] bg-[var(--modal-bg)] px-4 py-5 pb-safe pt-safe sm:max-w-[580px] sm:px-10 sm:py-8">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -42,7 +42,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
         </div>
 
         {/* The Framework */}
-        <div className="mb-4 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
+        <div className="mb-4 rounded-lg border border-[var(--border)] bg-[var(--overlay)] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
           <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-3 sm:text-[11px]">
             The Framework
           </div>
@@ -68,7 +68,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
             {EXTENSIONS.map((ext, i) => (
               <div
                 key={i}
-                className="rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1.5 font-mono text-[10px] text-muted sm:rounded-md sm:px-3 sm:py-2.5 sm:text-xs"
+                className="rounded border border-[var(--border)] bg-[var(--overlay)] px-2 py-1.5 font-mono text-[10px] text-muted sm:rounded-md sm:px-3 sm:py-2.5 sm:text-xs"
               >
                 {ext}
               </div>
@@ -83,7 +83,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
           </div>
 
           {/* Finding 1 */}
-          <div className="mb-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
+          <div className="mb-3 rounded-lg border border-[var(--border)] bg-[var(--overlay)] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
             <div className="mb-1.5 font-mono text-[11px] text-muted-dark sm:mb-2 sm:text-[13px]">01</div>
             <div className="mb-1.5 text-[13px] font-semibold text-text sm:mb-3 sm:text-base">
               People act according to their best interests
@@ -96,7 +96,7 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
           </div>
 
           {/* Finding 2 */}
-          <div className="mb-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
+          <div className="mb-3 rounded-lg border border-[var(--border)] bg-[var(--overlay)] p-3.5 sm:mb-6 sm:rounded-xl sm:p-5">
             <div className="mb-1.5 font-mono text-[11px] text-muted-dark sm:mb-2 sm:text-[13px]">02</div>
             <div className="mb-1.5 text-[13px] font-semibold text-text sm:mb-3 sm:text-base">
               The Manosphere is Wrong
@@ -172,8 +172,15 @@ export function AboutPanel({ onClose }: AboutPanelProps) {
           </div>
         </div>
 
+        {/* Disclaimer */}
+        <div className="mb-5 rounded-lg border border-[var(--border)] bg-[var(--overlay)] px-3.5 py-3 sm:mb-8 sm:px-5 sm:py-4">
+          <p className="text-[11px] leading-relaxed text-muted-dark sm:text-xs">
+            {DISCLAIMER}
+          </p>
+        </div>
+
         {/* Footer */}
-        <div className="border-t border-white/[0.06] pt-3.5 sm:pt-6">
+        <div className="border-t border-[var(--border)] pt-3.5 sm:pt-6">
           <div className="mb-1.5 text-[11px] text-muted-dark sm:mb-3 sm:text-[13px]">
             A{" "}
             <a

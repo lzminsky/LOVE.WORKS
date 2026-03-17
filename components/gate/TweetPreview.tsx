@@ -2,9 +2,9 @@ import { TWEET_PREVIEW } from "@/lib/constants";
 
 export function TweetPreview() {
   return (
-    <div className="mb-5 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 text-left sm:mb-6 sm:rounded-2xl sm:p-5">
+    <div className="mb-5 rounded-xl border border-[var(--border)] bg-[var(--overlay)] p-4 text-left sm:mb-6 sm:rounded-2xl sm:p-5">
       <div className="mb-2.5 flex items-center gap-2.5 sm:mb-3 sm:gap-3">
-        <div className="h-9 w-9 flex-shrink-0 rounded-full bg-white/10 sm:h-10 sm:w-10" />
+        <div className="h-9 w-9 flex-shrink-0 rounded-full bg-[var(--overlay-hover)] sm:h-10 sm:w-10" />
         <div className="min-w-0">
           <div className="truncate text-[13px] font-semibold text-text sm:text-sm">
             {TWEET_PREVIEW.author}

@@ -5,34 +5,8 @@ import { UserMessage } from "./UserMessage";
 import { AIMessage } from "./AIMessage";
 import { TypingIndicator } from "./TypingIndicator";
 import { ErrorToast } from "@/components/ui/ErrorToast";
-import { ConversationPhase, ChatError } from "@/hooks/useChat";
-
-export interface Message {
-  id: string;
-  role: "user" | "assistant" | "system";
-  content: string;
-  phase?: ConversationPhase;
-  equilibrium?: {
-    id: string;
-    name: string;
-    description: string;
-    confidence: number;
-    predictions: Array<{
-      outcome: string;
-      probability: number;
-      level: "high" | "medium" | "low" | "minimal";
-    }>;
-  };
-  formalAnalysis?: {
-    parameters: Array<{ param: string; value: string; basis: string }>;
-    extensions: Array<{
-      id: string;
-      name: string;
-      status: "ACTIVE" | "LIKELY" | "POSSIBLE";
-      detail: string;
-    }>;
-  };
-}
+import { ChatError } from "@/hooks/useChat";
+import type { Message } from "@/lib/types";
 
 interface MessageListProps {
   messages: Message[];

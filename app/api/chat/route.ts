@@ -9,6 +9,7 @@ import {
 import { CONFIG } from "@/lib/constants";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
 import { checkRateLimit, getRateLimitHeaders } from "@/lib/rate-limit";
+import { getRedis } from "@/lib/redis";
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -103,6 +104,12 @@ export async function POST(req: NextRequest) {
             const equilibriumChunk =
               JSON.stringify({ type: "equilibrium", data: equilibrium }) + "\n";
             controller.enqueue(encoder.encode(equilibriumChunk));
+
+            // Fire and forget — increment diagnosed counter
+            const redis = getRedis();
+            if (redis) {
+              redis.incr("lovebomb:diagnosed_count").catch(console.error);
+            }
           }
 
           if (analysis) {

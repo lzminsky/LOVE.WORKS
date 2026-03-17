@@ -10,7 +10,7 @@ interface WelcomeModalProps {
 export function WelcomeModal({ onClose, onAbout }: WelcomeModalProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black/85 p-4 pb-safe pt-safe backdrop-blur-lg sm:p-5">
-      <div className="w-full max-w-[420px] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#111111] px-5 py-7 text-center sm:px-12 sm:py-10">
+      <div className="w-full max-w-[420px] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--modal-bg)] px-5 py-7 text-center sm:px-12 sm:py-10">
         <div className="mb-3 text-xs font-medium uppercase tracking-[0.1em] text-muted-dark sm:mb-4 sm:text-[13px]">
           {COPY.welcomeModal.tagline}
         </div>
@@ -26,7 +26,7 @@ export function WelcomeModal({ onClose, onAbout }: WelcomeModalProps) {
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-center sm:gap-3">
           <button
             onClick={onAbout}
-            className="min-h-[48px] rounded-lg border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-muted transition-colors hover:border-white/20 hover:text-text sm:min-h-0"
+            className="min-h-[48px] rounded-lg border border-[var(--border)] bg-transparent px-5 py-3 text-sm font-medium text-muted transition-colors hover:border-accent/30 hover:text-text sm:min-h-0"
           >
             About the model
           </button>

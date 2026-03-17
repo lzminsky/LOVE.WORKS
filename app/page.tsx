@@ -4,42 +4,21 @@ import { useState, useEffect, useCallback } from "react";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { WelcomeModal } from "@/components/modals/WelcomeModal";
 import { AboutPanel } from "@/components/modals/AboutPanel";
+import { CatalogPanel } from "@/components/modals/CatalogPanel";
 import { ResetConfirmModal } from "@/components/modals/ResetConfirmModal";
 import { GateScreen } from "@/components/gate/GateScreen";
 import { ExportCard } from "@/components/export/ExportCard";
 import { CONFIG } from "@/lib/constants";
 import { Analytics } from "@/lib/analytics";
+import type { Equilibrium, Message } from "@/lib/types";
 
 type View = "chat" | "gate" | "export";
-
-interface Equilibrium {
-  id: string;
-  name: string;
-  description: string;
-  confidence: number;
-  predictions: {
-    outcome: string;
-    probability: number;
-    level: "high" | "medium" | "low" | "minimal";
-  }[];
-}
-
-interface Message {
-  id: string;
-  role: "system" | "user" | "assistant";
-  content: string;
-  phase?: string;
-  equilibrium?: Equilibrium;
-  formalAnalysis?: {
-    parameters: { param: string; value: string; basis: string }[];
-    extensions: { id: string; name: string; status: string; detail: string }[];
-  };
-}
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<View>("chat");
   const [showWelcome, setShowWelcome] = useState(true);
   const [showAbout, setShowAbout] = useState(false);
+  const [showCatalog, setShowCatalog] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [latestEquilibrium, setLatestEquilibrium] = useState<Equilibrium | undefined>();
@@ -136,6 +115,7 @@ export default function Home() {
         onShowResetConfirm={() => setShowResetConfirm(true)}
         onEquilibriumUpdate={handleEquilibriumUpdate}
         onMessagesUpdate={handleMessagesUpdate}
+        onShowCatalog={() => setShowCatalog(true)}
       />
 
       {/* Modals */}
@@ -147,6 +127,8 @@ export default function Home() {
       )}
 
       {showAbout && <AboutPanel onClose={() => setShowAbout(false)} />}
+
+      {showCatalog && <CatalogPanel onClose={() => setShowCatalog(false)} />}
 
       {showResetConfirm && (
         <ResetConfirmModal

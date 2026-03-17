@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const COOKIE_NAME = "lovebomb-session";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -11,19 +12,52 @@ export interface Session {
   createdAt: number;
 }
 
+function getSecret(): string | null {
+  return process.env.SESSION_SECRET || null;
+}
+
+function sign(payload: string): string {
+  const secret = getSecret();
+  if (!secret) return "";
+  return createHmac("sha256", secret).update(payload).digest("hex");
+}
+
+function verify(payload: string, signature: string): boolean {
+  const secret = getSecret();
+  if (!secret) return true; // No secret configured — accept unsigned (dev fallback)
+  const expected = createHmac("sha256", secret).update(payload).digest("hex");
+  if (expected.length !== signature.length) return false;
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+}
+
 function generateSessionId(): string {
   return crypto.randomUUID();
 }
 
 function encodeSession(session: Session): string {
-  // Base64 encode the JSON
-  // In production, you'd sign this with jose or similar
-  return Buffer.from(JSON.stringify(session)).toString("base64");
+  const payload = Buffer.from(JSON.stringify(session)).toString("base64");
+  const sig = sign(payload);
+  return sig ? `${payload}.${sig}` : payload;
 }
 
 function decodeSession(encoded: string): Session | null {
   try {
-    const json = Buffer.from(encoded, "base64").toString("utf-8");
+    const dotIndex = encoded.lastIndexOf(".");
+    let payload: string;
+
+    if (dotIndex !== -1) {
+      // Signed cookie: payload.signature
+      payload = encoded.substring(0, dotIndex);
+      const sig = encoded.substring(dotIndex + 1);
+      if (!verify(payload, sig)) return null;
+    } else {
+      // Unsigned cookie (legacy or no secret configured)
+      const secret = getSecret();
+      if (secret) return null; // Secret is set but cookie is unsigned — reject
+      payload = encoded;
+    }
+
+    const json = Buffer.from(payload, "base64").toString("utf-8");
     return JSON.parse(json) as Session;
   } catch {
     return null;

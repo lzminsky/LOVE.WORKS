@@ -3,30 +3,10 @@
 import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { Footer } from "@/components/ui/Footer";
 import { Analytics } from "@/lib/analytics";
-
-interface Equilibrium {
-  id: string;
-  name: string;
-  description: string;
-  confidence: number;
-  predictions: {
-    outcome: string;
-    probability: number;
-    level: "high" | "medium" | "low" | "minimal";
-  }[];
-}
-
-interface Message {
-  id: string;
-  role: "system" | "user" | "assistant";
-  content: string;
-  phase?: string;
-  equilibrium?: Equilibrium;
-  formalAnalysis?: {
-    parameters: { param: string; value: string; basis: string }[];
-    extensions: { id: string; name: string; status: string; detail: string }[];
-  };
-}
+import { DISCLAIMER } from "@/lib/constants";
+import { useSkin } from "@/lib/skin-context";
+import { VerticalCard } from "./VerticalCard";
+import type { Equilibrium, Message } from "@/lib/types";
 
 interface ExportCardProps {
   onBack: () => void;
@@ -150,9 +130,21 @@ export function ExportCard({
   messages = [],
 }: ExportCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const { skin } = useSkin();
+  const exportBg = skin === "soft" ? "#faf8f5" : "#0d0d0d";
+  const verticalRef = useRef<HTMLDivElement>(null);
+  const [format, setFormat] = useState<"horizontal" | "vertical">("horizontal");
+  const [showPredictions, setShowPredictions] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [canShare, setCanShare] = useState(false);
+  const [permalink, setPermalink] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+
+  const activeRef = format === "horizontal" ? cardRef : verticalRef;
+  const exportWidth = format === "horizontal" ? 1200 : 1080;
+  const exportHeight = format === "horizontal" ? 628 : 1920;
 
   // Check if native sharing is available (iOS/Android)
   useEffect(() => {
@@ -184,18 +176,18 @@ export function ExportCard({
   }, [equilibrium, tagline, topPrediction]);
 
   const handleDownloadPNG = useCallback(async () => {
-    if (!cardRef.current) return;
+    if (!activeRef.current) return;
 
     setIsExporting(true);
     try {
       // Dynamic import to avoid SSR issues
       const { toPng } = await import("html-to-image");
 
-      const dataUrl = await toPng(cardRef.current, {
-        width: 1200,
-        height: 628,
+      const dataUrl = await toPng(activeRef.current, {
+        width: exportWidth,
+        height: exportHeight,
         pixelRatio: 2,
-        backgroundColor: "#0d0d0d",
+        backgroundColor: exportBg,
       });
 
       // Download
@@ -211,21 +203,21 @@ export function ExportCard({
     } finally {
       setIsExporting(false);
     }
-  }, [equilibrium.id]);
+  }, [equilibrium.id, format, skin]);
 
   const [twitterImageCopied, setTwitterImageCopied] = useState(false);
 
   const handleShareTwitter = useCallback(async () => {
-    if (!cardRef.current) return;
+    if (!activeRef.current) return;
 
     try {
       // Generate the PNG
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, {
-        width: 1200,
-        height: 628,
+      const dataUrl = await toPng(activeRef.current, {
+        width: exportWidth,
+        height: exportHeight,
         pixelRatio: 2,
-        backgroundColor: "#0d0d0d",
+        backgroundColor: exportBg,
       });
 
       // Convert to blob and copy to clipboard
@@ -259,7 +251,7 @@ export function ExportCard({
       const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
       window.open(url, "_blank", "width=550,height=520");
     }
-  }, [equilibrium, topPrediction]);
+  }, [equilibrium, topPrediction, format, skin]);
 
   const handleDownloadMarkdown = useCallback(() => {
     // Generate full conversation markdown
@@ -295,17 +287,17 @@ ${conversationContent}
   }, [messages]);
 
   const handleNativeShare = useCallback(async () => {
-    if (!cardRef.current) return;
+    if (!activeRef.current) return;
 
     setIsSharing(true);
     try {
       const { toPng } = await import("html-to-image");
 
-      const dataUrl = await toPng(cardRef.current, {
-        width: 1200,
-        height: 628,
+      const dataUrl = await toPng(activeRef.current, {
+        width: exportWidth,
+        height: exportHeight,
         pixelRatio: 2,
-        backgroundColor: "#0d0d0d",
+        backgroundColor: exportBg,
       });
 
       // Convert data URL to blob
@@ -341,7 +333,42 @@ ${conversationContent}
     } finally {
       setIsSharing(false);
     }
-  }, [equilibrium, tagline, shareUrl]);
+  }, [equilibrium, tagline, shareUrl, format, skin]);
+
+  const handleCopyLink = useCallback(async () => {
+    // Generate permalink on first click (lazy)
+    if (!permalink) {
+      setIsGeneratingLink(true);
+      try {
+        const res = await fetch("/api/diagnosis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            equilibrium,
+            tagline: tagline || equilibrium.description,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPermalink(data.url);
+          await navigator.clipboard.writeText(data.url);
+          setLinkCopied(true);
+          setTimeout(() => setLinkCopied(false), 2000);
+          Analytics.shareCompleted("permalink");
+        }
+      } catch (err) {
+        console.error("Failed to generate permalink:", err);
+      } finally {
+        setIsGeneratingLink(false);
+      }
+      return;
+    }
+
+    // Already have permalink, just copy
+    await navigator.clipboard.writeText(permalink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  }, [permalink, equilibrium, tagline]);
 
   return (
     <div className="flex min-h-[100dvh] flex-col items-center overflow-y-auto bg-background px-4 py-6 pt-safe text-text sm:justify-center sm:p-6">
@@ -349,70 +376,130 @@ ${conversationContent}
         Export Preview
       </div>
 
-      {/* Card Preview - responsive scaling */}
-      <div className="mb-5 w-full max-w-[600px] flex-shrink-0 overflow-hidden sm:mb-8">
-        <div
-          ref={cardRef}
-          className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d0d] p-4 sm:rounded-xl sm:p-8 md:p-12"
-          style={{ transformOrigin: "center" }}
+      {/* Format toggle */}
+      <div className="mb-3 flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--overlay)] p-1 sm:mb-4">
+        <button
+          onClick={() => setFormat("horizontal")}
+          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            format === "horizontal"
+              ? "bg-accent text-background"
+              : "text-muted hover:text-text"
+          }`}
         >
-          {/* Grid background */}
+          Twitter
+        </button>
+        <button
+          onClick={() => setFormat("vertical")}
+          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            format === "vertical"
+              ? "bg-accent text-background"
+              : "text-muted hover:text-text"
+          }`}
+        >
+          Stories
+        </button>
+      </div>
+
+      {/* Customization toggle */}
+      <div className="mb-4 flex items-center gap-2 sm:mb-5">
+        <button
+          onClick={() => setShowPredictions(!showPredictions)}
+          className="flex items-center gap-1.5 text-xs text-muted-dark transition-colors hover:text-muted"
+        >
+          <span className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${
+            showPredictions ? "border-accent bg-accent" : "border-muted-dark"
+          }`}>
+            {showPredictions && (
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </span>
+          Show predictions
+        </button>
+      </div>
+
+      {/* Card Preview - responsive scaling */}
+      <div className={`mb-5 w-full flex-shrink-0 overflow-hidden sm:mb-8 ${format === "horizontal" ? "max-w-[600px]" : "max-w-[280px]"}`}>
+        {format === "horizontal" ? (
           <div
-            className="pointer-events-none absolute inset-0 opacity-50"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-              `,
-              backgroundSize: "32px 32px",
-            }}
-          />
+            ref={cardRef}
+            className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--modal-bg)] p-4 sm:rounded-xl sm:p-8 md:p-12"
+            style={{ transformOrigin: "center" }}
+          >
+            {/* Grid background */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-50"
+              style={{
+                backgroundImage: `
+                  linear-gradient(var(--border) 1px, transparent 1px),
+                  linear-gradient(90deg, var(--border) 1px, transparent 1px)
+                `,
+                backgroundSize: "32px 32px",
+              }}
+            />
 
-          <div className="relative z-10 flex h-full flex-col justify-between">
-            <div>
-              <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:mb-5 sm:gap-2">
-                <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono text-[9px] text-muted-dark sm:px-2 sm:py-1 sm:text-[11px]">
-                  {equilibrium.id}
-                </span>
-                <span className="text-[9px] font-medium text-accent sm:text-[11px]">
-                  {equilibrium.confidence}% confidence
-                </span>
-              </div>
-
-              <h1 className="mb-2 text-lg font-semibold leading-tight tracking-tight text-text sm:mb-4 sm:text-2xl md:text-4xl md:leading-none">
-                {line1}
-                {line2 && (
-                  <>
-                    <br />
-                    {line2}
-                  </>
-                )}
-              </h1>
-
-              <p className="max-w-[85%] text-xs leading-relaxed text-muted sm:max-w-[400px] sm:text-sm md:text-base">
-                {tagline || equilibrium.description}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              {topPrediction && (
-                <div className="flex items-center gap-1.5 sm:gap-2.5">
-                  <div className="h-1.5 w-1.5 rounded-full bg-accent sm:h-2.5 sm:w-2.5" />
-                  <span className="font-mono text-xs text-accent sm:text-sm">
-                    {topPrediction.probability}%
+            <div className="relative z-10 flex h-full flex-col justify-between">
+              <div>
+                <div className="mb-2 flex flex-wrap items-center gap-1.5 sm:mb-5 sm:gap-2">
+                  <span className="rounded bg-[var(--overlay-hover)] px-1.5 py-0.5 font-mono text-[9px] text-muted-dark sm:px-2 sm:py-1 sm:text-[11px]">
+                    {equilibrium.id}
                   </span>
-                  <span className="text-xs text-muted sm:text-sm">
-                    {topPrediction.outcome}
+                  <span className="text-[9px] font-medium text-accent sm:text-[11px]">
+                    {equilibrium.confidence}% confidence
                   </span>
                 </div>
-              )}
 
-              <div className="text-xs font-semibold text-muted-dark sm:text-sm">
-                lovebomb.works
+                <h1 className="mb-2 text-lg font-semibold leading-tight tracking-tight text-text sm:mb-4 sm:text-2xl md:text-4xl md:leading-none">
+                  {line1}
+                  {line2 && (
+                    <>
+                      <br />
+                      {line2}
+                    </>
+                  )}
+                </h1>
+
+                <p className="max-w-[85%] text-xs leading-relaxed text-muted sm:max-w-[400px] sm:text-sm md:text-base">
+                  {tagline || equilibrium.description}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                {topPrediction && showPredictions && (
+                  <div className="flex items-center gap-1.5 sm:gap-2.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-accent sm:h-2.5 sm:w-2.5" />
+                    <span className="font-mono text-xs text-accent sm:text-sm">
+                      {topPrediction.probability}%
+                    </span>
+                    <span className="text-xs text-muted sm:text-sm">
+                      {topPrediction.outcome}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex flex-col items-end gap-0.5">
+                  <div className="text-xs font-semibold text-muted-dark sm:text-sm">
+                    lovebomb.works
+                  </div>
+                  <div className="text-[7px] text-muted-darker sm:text-[9px]">
+                    {DISCLAIMER}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div
+            ref={verticalRef}
+            className="w-full overflow-hidden rounded-lg border border-[var(--border)]"
+          >
+            <VerticalCard
+              equilibrium={equilibrium}
+              showPredictions={showPredictions}
+            />
+          </div>
+        )}
       </div>
 
       {/* Action buttons - responsive layout */}
@@ -437,20 +524,27 @@ ${conversationContent}
         <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3">
           <button
             onClick={handleShareTwitter}
-            className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
+            className="min-h-[44px] rounded-lg border border-[var(--border)] bg-[var(--overlay-hover)] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-[var(--overlay-hover)] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             {twitterImageCopied ? "Image copied — paste in 𝕏" : "Share to 𝕏"}
           </button>
           <button
+            onClick={handleCopyLink}
+            disabled={isGeneratingLink}
+            className="min-h-[44px] rounded-lg border border-[var(--border)] bg-[var(--overlay-hover)] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-[var(--overlay-hover)] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
+          >
+            {isGeneratingLink ? "Generating..." : linkCopied ? "Link copied!" : "Copy link"}
+          </button>
+          <button
             onClick={handleDownloadPNG}
             disabled={isExporting}
-            className="min-h-[44px] rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-white/[0.08] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
+            className="min-h-[44px] rounded-lg border border-[var(--border)] bg-[var(--overlay-hover)] px-3 py-2.5 text-[13px] text-muted transition-colors hover:bg-[var(--overlay-hover)] hover:text-text sm:px-5 sm:py-3 sm:text-sm"
           >
             {isExporting ? "Exporting..." : "Download PNG"}
           </button>
           <button
             onClick={handleDownloadMarkdown}
-            className="col-span-2 min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover sm:col-span-1 sm:px-5 sm:py-3 sm:text-sm"
+            className="min-h-[44px] rounded-lg bg-accent px-3 py-2.5 text-[13px] font-semibold text-background transition-colors hover:bg-accent-hover sm:px-5 sm:py-3 sm:text-sm"
           >
             Save Conversation
           </button>
@@ -459,7 +553,7 @@ ${conversationContent}
         {/* Back button */}
         <button
           onClick={onBack}
-          className="min-h-[44px] rounded-lg border border-white/10 bg-transparent px-5 py-2.5 text-[13px] text-muted transition-colors hover:border-white/20 hover:text-text sm:py-3 sm:text-sm"
+          className="min-h-[44px] rounded-lg border border-[var(--border)] bg-transparent px-5 py-2.5 text-[13px] text-muted transition-colors hover:border-accent/30 hover:text-text sm:py-3 sm:text-sm"
         >
           ← Back
         </button>

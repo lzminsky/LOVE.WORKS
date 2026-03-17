@@ -38,7 +38,7 @@ export function VerificationStates({
 
   if (state === "connecting") {
     return (
-      <div className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-white/[0.05] px-5 py-3.5 sm:mb-4 sm:gap-3 sm:px-6 sm:py-4">
+      <div className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-[var(--overlay-hover)] px-5 py-3.5 sm:mb-4 sm:gap-3 sm:px-6 sm:py-4">
         <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-dark border-t-accent" />
         <span className="text-[13px] text-muted sm:text-sm">Connecting to Twitter...</span>
       </div>
@@ -47,7 +47,7 @@ export function VerificationStates({
 
   if (state === "checking") {
     return (
-      <div className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-white/[0.05] px-5 py-3.5 sm:mb-4 sm:gap-3 sm:px-6 sm:py-4">
+      <div className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-xl bg-[var(--overlay-hover)] px-5 py-3.5 sm:mb-4 sm:gap-3 sm:px-6 sm:py-4">
         <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-dark border-t-accent" />
         <span className="text-[13px] text-muted sm:text-sm">Checking engagement...</span>
       </div>

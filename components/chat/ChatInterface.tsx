@@ -8,6 +8,7 @@ import { ChatInput } from "./ChatInput";
 import { useChat, Equilibrium, Message } from "@/hooks/useChat";
 import { COPY, CONFIG } from "@/lib/constants";
 import { Analytics } from "@/lib/analytics";
+import { addToCatalog } from "@/lib/equilibrium-catalog";
 
 interface ChatInterfaceProps {
   onShowGate: (promptCount: number) => void;
@@ -16,6 +17,7 @@ interface ChatInterfaceProps {
   onShowResetConfirm: () => void;
   onEquilibriumUpdate?: (equilibrium: Equilibrium) => void;
   onMessagesUpdate?: (messages: Message[]) => void;
+  onShowCatalog?: () => void;
 }
 
 export function ChatInterface({
@@ -25,6 +27,7 @@ export function ChatInterface({
   onShowResetConfirm,
   onEquilibriumUpdate,
   onMessagesUpdate,
+  onShowCatalog,
 }: ChatInterfaceProps) {
   const {
     messages,
@@ -56,6 +59,13 @@ export function ChatInterface({
 
     if (latestWithEquilibrium?.equilibrium && onEquilibriumUpdate) {
       onEquilibriumUpdate(latestWithEquilibrium.equilibrium);
+
+      // Add to local catalog
+      addToCatalog({
+        id: latestWithEquilibrium.equilibrium.id,
+        name: latestWithEquilibrium.equilibrium.name,
+        confidence: latestWithEquilibrium.equilibrium.confidence,
+      });
     }
   }, [messages, onEquilibriumUpdate]);
 
@@ -97,6 +107,7 @@ export function ChatInterface({
           onAboutClick={onShowAbout}
           onExportClick={() => onShowExport(messages)}
           onNewClick={onShowResetConfirm}
+          onCatalogClick={onShowCatalog}
         />
 
         <MessageList
