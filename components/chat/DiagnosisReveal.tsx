@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSkin } from "@/lib/skin-context";
 
 interface DiagnosisRevealProps {
   onReveal: () => void;
@@ -8,6 +9,8 @@ interface DiagnosisRevealProps {
 
 export function DiagnosisReveal({ onReveal }: DiagnosisRevealProps) {
   const [isRevealing, setIsRevealing] = useState(false);
+  const { skin } = useSkin();
+  const isSoft = skin === "soft";
 
   const handleReveal = () => {
     setIsRevealing(true);
@@ -15,9 +18,13 @@ export function DiagnosisReveal({ onReveal }: DiagnosisRevealProps) {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-accent/20 bg-accent/[0.03] p-5 sm:p-6">
-      {/* Subtle glow border */}
-      <div className="absolute inset-0 rounded-xl border border-accent/10 animate-pulse-glow pointer-events-none" />
+    <div className={`relative overflow-hidden rounded-xl border p-5 sm:p-6 ${
+      isSoft ? "border-accent/30 bg-accent/[0.04]" : "border-accent/20 bg-accent/[0.03]"
+    }`}>
+      {/* Subtle glow border — static in soft mode */}
+      {!isSoft && (
+        <div className="absolute inset-0 rounded-xl border border-accent/10 animate-pulse-glow pointer-events-none" />
+      )}
 
       <div className="relative z-10 flex flex-col items-center gap-3 text-center sm:gap-4">
         <p className="text-sm font-medium text-text sm:text-[15px]">

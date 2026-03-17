@@ -1,6 +1,7 @@
 "use client";
 
 import { DISCLAIMER } from "@/lib/constants";
+import { useSkin } from "@/lib/skin-context";
 import type { Equilibrium } from "@/lib/types";
 
 interface VerticalCardProps {
@@ -9,22 +10,27 @@ interface VerticalCardProps {
 }
 
 export function VerticalCard({ equilibrium, showPredictions = true }: VerticalCardProps) {
+  const { skin } = useSkin();
+  const isSoft = skin === "soft";
+
   return (
     <div
       className="relative flex h-full w-full flex-col items-center justify-between overflow-hidden bg-[var(--modal-bg)] p-8 text-center"
       style={{ aspectRatio: "1080/1920" }}
     >
-      {/* Grid background */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-50"
-        style={{
-          backgroundImage: `
-            linear-gradient(var(--border) 1px, transparent 1px),
-            linear-gradient(90deg, var(--border) 1px, transparent 1px)
-          `,
-          backgroundSize: "32px 32px",
-        }}
-      />
+      {/* Grid background — hidden in soft mode */}
+      {!isSoft && (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-50"
+          style={{
+            backgroundImage: `
+              linear-gradient(var(--border) 1px, transparent 1px),
+              linear-gradient(90deg, var(--border) 1px, transparent 1px)
+            `,
+            backgroundSize: "32px 32px",
+          }}
+        />
+      )}
 
       {/* Top section — ID + Confidence */}
       <div className="relative z-10 flex items-center gap-2 pt-8">
@@ -39,7 +45,9 @@ export function VerticalCard({ equilibrium, showPredictions = true }: VerticalCa
       {/* Center section — Name + Description */}
       <div className="relative z-10 flex flex-col items-center gap-4">
         <div className="h-0.5 w-8 bg-gradient-to-r from-accent to-accent/20" />
-        <h1 className="text-[48px] font-bold leading-[1.1] tracking-tight text-text">
+        <h1 className={`text-[48px] leading-[1.1] tracking-tight text-text ${
+          isSoft ? "font-serif-display font-normal" : "font-bold"
+        }`}>
           {equilibrium.name}
         </h1>
         <p className="max-w-[320px] text-base leading-relaxed text-muted">
@@ -60,7 +68,7 @@ export function VerticalCard({ equilibrium, showPredictions = true }: VerticalCa
           </div>
         )}
 
-        <div className="text-sm font-semibold text-muted-dark">
+        <div className={`text-sm text-muted-dark ${isSoft ? "font-serif-display font-normal" : "font-semibold"}`}>
           lovebomb.works
         </div>
         <div className="text-[9px] text-muted-darker">

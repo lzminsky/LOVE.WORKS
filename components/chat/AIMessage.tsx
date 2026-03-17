@@ -8,6 +8,7 @@ import { DiagnosisReveal } from "@/components/chat/DiagnosisReveal";
 import { playRevealTone } from "@/lib/audio";
 import { detectSafetyResponse } from "@/lib/safety";
 import { SafetyMessage } from "@/components/chat/SafetyMessage";
+import { useSkin } from "@/lib/skin-context";
 import type { ConversationPhase, Equilibrium, FormalAnalysis } from "@/lib/types";
 
 interface AIMessageProps {
@@ -72,6 +73,8 @@ export function AIMessage({
   animate = true,
 }: AIMessageProps) {
   const [revealed, setRevealed] = useState(false);
+  const { skin } = useSkin();
+  const isSoft = skin === "soft";
 
   // Check for safety-flagged response before any other processing
   const safetyContent = detectSafetyResponse(content);
@@ -116,7 +119,7 @@ export function AIMessage({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl bg-[var(--overlay)] p-4 sm:p-6">
+    <div className={`overflow-hidden rounded-xl bg-[var(--overlay)] ${isSoft ? "p-5 sm:p-8" : "p-4 sm:p-6"}`}>
       {/* Phase indicator for DIAGNOSIS */}
       {phase === "DIAGNOSIS" && !cleanContent && !showThinkingIndicator && (
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
@@ -128,7 +131,7 @@ export function AIMessage({
       {/* Thinking indicator while streaming */}
       {showThinkingIndicator && !cleanContent && (
         <div className="mb-4 flex items-center gap-2 text-xs text-muted-dark sm:mb-6 sm:gap-3 sm:text-[13px]">
-          <span className="font-mono text-accent">ƒ</span>
+          <span className={`${isSoft ? "font-serif-display" : "font-mono"} text-accent`}>ƒ</span>
           <span>{loadingMessage}</span>
           <span className="flex gap-1">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent/60" style={{ animationDelay: "0ms" }} />

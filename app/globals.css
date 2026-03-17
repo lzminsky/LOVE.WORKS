@@ -28,25 +28,25 @@
   --safe-area-right: env(safe-area-inset-right, 0px);
 }
 
-/* Soft mode overrides */
+/* Soft mode overrides — editorial register */
 [data-skin="soft"] {
-  --background: #faf8f5;
-  --surface: #ffffff;
-  --surface-hover: #f0ede8;
-  --text: #1a1a1a;
-  --muted: #6b6b6b;
-  --muted-dark: #8a8a8a;
-  --muted-darker: #a3a3a3;
-  --accent: #c4956a;
-  --accent-hover: #b38259;
+  --background: #F7F3EE;
+  --surface: #FFFFFF;
+  --surface-hover: #F2EEEA;
+  --text: #2A2A2A;
+  --muted: #8A8580;
+  --muted-dark: #9E9890;
+  --muted-darker: #B5AFA8;
+  --accent: #B08D8E;
+  --accent-hover: #9E7B7D;
   --error: #dc2626;
   --success: #16a34a;
   --warning: #ca8a04;
-  --border: rgba(0, 0, 0, 0.08);
+  --border: rgba(0, 0, 0, 0.06);
   --overlay: rgba(0, 0, 0, 0.02);
   --overlay-hover: rgba(0, 0, 0, 0.05);
-  --card-bg: rgba(0, 0, 0, 0.03);
-  --modal-bg: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --modal-bg: #FFFEFA;
 }
 
 * {
@@ -81,6 +81,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Soft mode typography — editorial breathing room */
+[data-skin="soft"] body {
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -106,11 +112,11 @@ a {
 }
 
 [data-skin="soft"] ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #C5BFB8;
 }
 
 [data-skin="soft"] ::-webkit-scrollbar-thumb:hover {
-  background: #bbb;
+  background: #B5AEA6;
 }
 
 /* Focus styles */

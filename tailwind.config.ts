@@ -26,6 +26,7 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
         mono: ['var(--font-mono)', '"SF Mono"', 'ui-monospace', 'monospace'],
+        'serif-display': ['var(--font-serif-display)', 'Georgia', 'serif'],
       },
       animation: {
         "slide-in": "slideIn 0.2s ease-out",

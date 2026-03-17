@@ -1,6 +1,7 @@
 "use client";
 
 import { ProbabilityRow, ProbabilityLevel } from "./ProbabilityRow";
+import { useSkin } from "@/lib/skin-context";
 
 interface Prediction {
   outcome: string;
@@ -25,8 +26,18 @@ export function EquilibriumCard({
   predictions,
   animate = true,
 }: EquilibriumCardProps) {
+  const { skin } = useSkin();
+  const isSoft = skin === "soft";
+
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 sm:rounded-2xl sm:p-8">
+    <div
+      className={`relative overflow-hidden bg-[var(--card-bg)] ${
+        isSoft
+          ? "rounded-2xl sm:rounded-[20px] p-5 sm:p-10"
+          : "rounded-xl border border-[var(--border)] sm:rounded-2xl p-4 sm:p-8"
+      }`}
+      style={isSoft ? { boxShadow: "0 1px 4px rgba(0,0,0,0.05)" } : undefined}
+    >
       {/* Top accent line */}
       <div className="absolute left-0 right-0 top-0 h-0.5 bg-gradient-to-r from-accent to-accent/20" />
 
@@ -44,13 +55,15 @@ export function EquilibriumCard({
       </div>
 
       {/* Title */}
-      <h2 className="mb-1.5 text-xl font-bold leading-tight tracking-tight text-text sm:mb-2 sm:text-[32px]">
+      <h2 className={`mb-1.5 text-xl leading-tight tracking-tight text-text sm:mb-2 sm:text-[32px] ${
+        isSoft ? "font-serif-display font-normal" : "font-bold"
+      }`}>
         {name}
       </h2>
       <p className="mb-4 text-xs text-muted sm:mb-7 sm:text-sm">{description}</p>
 
       {/* Predictions */}
-      <div className="flex flex-col gap-2 sm:gap-3">
+      <div className={`flex flex-col ${isSoft ? "gap-3 sm:gap-4" : "gap-2 sm:gap-3"}`}>
         <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-dark sm:mb-1 sm:text-[11px]">
           Predictions
         </div>

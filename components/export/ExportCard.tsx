@@ -131,7 +131,8 @@ export function ExportCard({
 }: ExportCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const { skin } = useSkin();
-  const exportBg = skin === "soft" ? "#faf8f5" : "#0d0d0d";
+  const isSoft = skin === "soft";
+  const exportBg = isSoft ? "#F7F3EE" : "#0d0d0d";
   const verticalRef = useRef<HTMLDivElement>(null);
   const [format, setFormat] = useState<"horizontal" | "vertical">("horizontal");
   const [showPredictions, setShowPredictions] = useState(true);
@@ -427,17 +428,19 @@ ${conversationContent}
             className="relative aspect-[1200/628] w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--modal-bg)] p-4 sm:rounded-xl sm:p-8 md:p-12"
             style={{ transformOrigin: "center" }}
           >
-            {/* Grid background */}
-            <div
-              className="pointer-events-none absolute inset-0 opacity-50"
-              style={{
-                backgroundImage: `
-                  linear-gradient(var(--border) 1px, transparent 1px),
-                  linear-gradient(90deg, var(--border) 1px, transparent 1px)
-                `,
-                backgroundSize: "32px 32px",
-              }}
-            />
+            {/* Grid background — hidden in soft mode */}
+            {!isSoft && (
+              <div
+                className="pointer-events-none absolute inset-0 opacity-50"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(var(--border) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--border) 1px, transparent 1px)
+                  `,
+                  backgroundSize: "32px 32px",
+                }}
+              />
+            )}
 
             <div className="relative z-10 flex h-full flex-col justify-between">
               <div>
@@ -450,7 +453,9 @@ ${conversationContent}
                   </span>
                 </div>
 
-                <h1 className="mb-2 text-lg font-semibold leading-tight tracking-tight text-text sm:mb-4 sm:text-2xl md:text-4xl md:leading-none">
+                <h1 className={`mb-2 text-lg leading-tight tracking-tight text-text sm:mb-4 sm:text-2xl md:text-4xl md:leading-none ${
+                  isSoft ? "font-serif-display font-normal" : "font-semibold"
+                }`}>
                   {line1}
                   {line2 && (
                     <>
@@ -479,7 +484,7 @@ ${conversationContent}
                 )}
 
                 <div className="flex flex-col items-end gap-0.5">
-                  <div className="text-xs font-semibold text-muted-dark sm:text-sm">
+                  <div className={`text-xs text-muted-dark sm:text-sm ${isSoft ? "font-serif-display font-normal" : "font-semibold"}`}>
                     lovebomb.works
                   </div>
                   <div className="text-[7px] text-muted-darker sm:text-[9px]">

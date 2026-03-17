@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CONFIG } from "@/lib/constants";
 import { useCounter } from "@/hooks/useCounter";
+import { useSkin } from "@/lib/skin-context";
 
 interface HeaderProps {
   promptCount: number;
@@ -25,12 +26,14 @@ export function Header({
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { count, isLoaded } = useCounter();
+  const { skin } = useSkin();
+  const isSoft = skin === "soft";
 
   return (
     <header className="relative flex items-center justify-between border-b border-[var(--border)] bg-background px-4 py-3 pt-safe sm:px-6 md:px-8 md:py-4">
       <a href="/" className="flex items-center gap-2 sm:gap-2.5">
-        <span className="font-mono text-lg text-accent sm:text-xl">ƒ</span>
-        <span className="text-sm font-semibold tracking-tight text-text sm:text-[15px]">
+        <span className={`${isSoft ? "font-serif-display text-xl sm:text-[22px]" : "font-mono text-lg sm:text-xl"} text-accent`}>ƒ</span>
+        <span className={`text-sm tracking-tight text-text sm:text-[15px] ${isSoft ? "font-serif-display font-normal" : "font-semibold"}`}>
           {CONFIG.appName}
         </span>
       </a>
