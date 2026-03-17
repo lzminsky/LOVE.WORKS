@@ -1,5 +1,7 @@
-import { getSession, serializeSessionCookie, createSession } from "@/lib/session";
+import { getSession, serializeSessionCookie } from "@/lib/session";
 import { CONFIG } from "@/lib/constants";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
