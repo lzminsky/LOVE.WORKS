@@ -354,7 +354,7 @@ ${conversationContent}
           await navigator.clipboard.writeText(data.url);
           setLinkCopied(true);
           setTimeout(() => setLinkCopied(false), 2000);
-          Analytics.shareCompleted("permalink");
+          Analytics.shareCompleted("copy_link");
         }
       } catch (err) {
         console.error("Failed to generate permalink:", err);
